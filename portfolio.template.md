@@ -10,10 +10,9 @@
 
 ## Profile
 
-- **Location:** [e.g. Finland]
-- **Platform:** [e.g. Nordnet]
-- **Tax wrapper:** [e.g. OST (osakesäästötili)]
-- **Investment horizon:** [e.g. 7+ years]
+> Country, platform, tax wrapper, and investment horizon now live in `persona.md`
+> (one-time setup). This section is for things that change with your portfolio.
+
 - **Risk tolerance:** [e.g. Medium-high — I can handle 30–40% drawdowns without panic selling]
 - **Monthly savings capacity:** [e.g. €200/month, or "Currently none"]
 
@@ -36,7 +35,7 @@
 ## Cash Position
 
 - **Total uninvested cash:** ~€[fill in]
-- **Platform:** [e.g. €X in Nordnet cash, €Y in bank savings]
+- **Breakdown:** [e.g. €X in brokerage cash, €Y in bank savings]
 - **Interest rate on cash (if any):** [...]
 
 ---

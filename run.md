@@ -12,8 +12,8 @@ Run a full market advisor session following the CLAUDE.md instructions.
 
 Today's date: [YYYY-MM-DD]  ← update this before running
 
-Start with Step 1 (fetch current macro data via web search), then read portfolio.md,
-then proceed through all steps in order. Log the session when done.
+Start with Step 1 (fetch current macro data via web search), then read persona.md
+and portfolio.md, then proceed through all steps in order. Log the session when done.
 
 Any additional context for this session:
 [Optional: e.g. "I'm specifically thinking about whether to deploy my cash now or wait"

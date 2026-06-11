@@ -11,27 +11,54 @@ think through risks, and build better mental models for long-term investing.
 
 ```
 market-advisor/
-├── CLAUDE.md             ← Core system prompt + persona (don't edit unless upgrading)
+├── CLAUDE.md             ← Core system prompt + workflow (generic, don't edit unless upgrading)
+├── persona.template.md   ← Template — copy to persona.md and fill in who you are / where you invest
+├── persona.md            ← YOUR context: country, tax wrappers, platforms, horizon (git-ignored)
 ├── portfolio.template.md ← Template — copy to portfolio.md and fill in your details
 ├── portfolio.md          ← YOUR context: holdings, cash, what's on your mind (git-ignored)
+├── EXAMPLE-SESSION.md    ← Generic sample of session output (no personal data)
 ├── run.md                ← How to start a session + tips
 ├── README.md             ← This file
+├── CHANGELOG.md          ← History of repo/template setup changes (not your portfolio)
 └── sessions/             ← Auto-logged session outputs (your investment journal, git-ignored)
     └── YYYY-MM-DD.md
 ```
 
-`portfolio.md` and your real session logs are listed in `.gitignore` — they contain
-your personal financial data and stay local even if this repo is public.
+---
+
+## What Gets Pushed vs. Stays Local
+
+Everything personal lives in two files, both listed in `.gitignore`. Everything
+else in this repo is generic and contains no personal data — safe to push to a
+public remote.
+
+| File | Pushed to git? | Contains |
+|------|-----------------|----------|
+| `CLAUDE.md`, `README.md`, `run.md`, `CHANGELOG.md` | ✅ Yes | Generic instructions/docs only |
+| `persona.template.md`, `portfolio.template.md` | ✅ Yes | Empty templates with `[placeholder]` examples |
+| `EXAMPLE-SESSION.md` | ✅ Yes | Generic sample output, no real numbers |
+| **`persona.md`** | ❌ No (git-ignored) | Your country, tax wrappers, platforms, horizon, language |
+| **`portfolio.md`** | ❌ No (git-ignored) | Your holdings, cash, notes |
+| **`sessions/*.md`** | ❌ No (git-ignored) | Your real session logs |
+
+If you ever see real personal details (your country, holdings, account numbers,
+etc.) inside `CLAUDE.md`, `README.md`, or any other file from the left column —
+that's a bug. It should only ever live in `persona.md`, `portfolio.md`, or
+`sessions/`.
 
 ---
 
 ## Quick Start
 
-1. **Copy `portfolio.template.md` to `portfolio.md`** and fill in your actual positions and cash
-2. Open the project in Claude Code: `claude` in this directory
-3. Paste the prompt from `run.md` (or just say "run a market advisor session")
-4. Read the output, push back with follow-up questions, think about the open questions
-5. Session is auto-logged to `sessions/`
+1. **Copy `persona.template.md` to `persona.md`** and fill in your country, tax
+   wrappers, platform(s), home market index, investment horizon, and experience
+   level — this is what makes the persona/teaching style fit you instead of being
+   generic
+2. **Copy `portfolio.template.md` to `portfolio.md`** and fill in your actual positions and cash
+3. Open the project in Claude Code: `claude` in this directory
+4. Paste the prompt from `run.md` (or just say "run a market advisor session")
+5. Read the output, push back with follow-up questions, think about the open questions
+6. Session is auto-logged to `sessions/`
 
 ---
 
@@ -47,9 +74,11 @@ your personal financial data and stay local even if this repo is public.
 
 ## Maintenance
 
+- `persona.md` is mostly a one-time setup — revisit it only if you move countries,
+  switch brokers, or your tax situation changes
 - Update `portfolio.md` before each session (especially "What I'm Thinking About")
-- `portfolio.md` and `sessions/*.md` are git-ignored — they hold your personal
-  financial data and won't be committed to this repo. If you want version history
-  for your own portfolio over time, keep a separate private repo or local backups
-  for these files.
+- `persona.md`, `portfolio.md`, and `sessions/*.md` are git-ignored — they hold
+  your personal details and financial data and won't be committed to this repo.
+  If you want version history for these over time, keep a separate private repo
+  or local backups for these files.
 - Sessions folder builds into a personal investment journal over months/years (locally)
