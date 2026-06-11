@@ -4,7 +4,6 @@ A personal macro-financial education tool powered by Claude Code.
 
 Runs regular analysis sessions to help you understand the current market environment,
 think through risks, and build better mental models for long-term investing.
-Built for a Finnish investor with a 7+ year horizon using Nordnet.
 
 ---
 
