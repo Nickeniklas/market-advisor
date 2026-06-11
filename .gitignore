@@ -1,0 +1,6 @@
+# Personal portfolio data - contains real holdings, balances, and notes
+portfolio.md
+
+# Real session logs - contain personal financial details derived from portfolio.md
+sessions/*.md
+!sessions/.gitkeep
