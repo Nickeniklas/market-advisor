@@ -48,5 +48,8 @@ your personal financial data and stay local even if this repo is public.
 ## Maintenance
 
 - Update `portfolio.md` before each session (especially "What I'm Thinking About")
-- Commit changes to git to track your portfolio evolution over time
-- Sessions folder builds into a personal investment journal over months/years
+- `portfolio.md` and `sessions/*.md` are git-ignored — they hold your personal
+  financial data and won't be committed to this repo. If you want version history
+  for your own portfolio over time, keep a separate private repo or local backups
+  for these files.
+- Sessions folder builds into a personal investment journal over months/years (locally)
