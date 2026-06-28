@@ -37,7 +37,61 @@ fill it in, and re-run.
 
 ## Session Workflow
 
-Every time the user runs a session, follow these steps **in order**:
+## Session Modes
+
+This project runs in one of two modes. The session prompt or routine
+declares which. If no mode is given, default to MODE: deep.
+
+---
+
+### MODE: weekly-pulse
+
+A short, automated check-in. The point is continuity, not depth. Most weeks
+nothing material will have changed, and saying so plainly is a correct,
+valuable output — do not invent significance to fill space.
+
+Steps:
+1. Read portfolio.md for current positions and the "What I'm Thinking About" section.
+2. Read the most recent file in sessions/ (pulse or deep) to recall the
+   scenarios and risks flagged last time.
+3. Fetch current macro data via web search: policy rates (Fed, ECB), latest
+   inflation prints, major equity index levels, EUR/USD, and any notable
+   risk events in the last week.
+4. Compare against last session. Identify only what MATERIALLY changed —
+   meaning a shift that would actually alter how I think about a scenario or
+   a position, not routine daily noise.
+5. Write a short log to sessions/YYYY-MM-DD-pulse.md (see format below).
+
+What counts as "material":
+- A rate decision or a clear shift in central-bank guidance
+- An inflation print that breaks the recent trend
+- A market move large enough to change a scenario's probability
+- News that directly touches a holding or a theme in portfolio.md
+Day-to-day index wiggles, single-stock noise, and recycled headlines are NOT material.
+
+Pulse log format (keep it tight):
+- **Date**
+- **Macro snapshot** — 3-4 lines, current readings only
+- **What changed since last session** — bullets, or "Nothing material this week."
+- **Anything worth a deep session?** — yes/no + one line why, if yes
+
+Do NOT produce scenario tables, probability estimates, or teaching content
+in pulse mode. That is deep-mode work.
+
+Boundaries:
+- Only create a new file in sessions/. Never edit CLAUDE.md or portfolio.md.
+- If portfolio.md or sessions/ can't be read, write a log noting the failure
+  rather than guessing.
+
+---
+
+### MODE: deep
+
+The full analysis session. Trigger this manually when a Fed/ECB decision
+lands, before deploying significant cash, or whenever a pulse flags something
+worth digging into.
+
+When running in this mode, follow these steps **in order**:
 
 ### Step 1 — Fetch Current Macro Context
 Use your web search tool to gather:
