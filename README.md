@@ -68,7 +68,40 @@ that's a bug. It should only ever live in `persona.md`, `portfolio.md`, or
 2. **3 Scenarios** — plausible macro futures with probability estimates + what each means for your portfolio
 3. **Key Principles** — timeless concepts made relevant to right now
 4. **Open Questions** — hard questions to sit with before next session
-5. **Session Log** — saved automatically to `sessions/YYYY-MM-DD.md`
+5. **Session Log** — saved automatically to `sessions/YYYY-MM-DD.md`, starting
+   with a machine-readable YAML frontmatter block (see below)
+
+---
+
+## Machine-Readable Session Logs
+
+Every session log starts with a YAML frontmatter block (schema defined in
+`CLAUDE.md`, sample at the top of `EXAMPLE-SESSION.md`) capturing the session's
+key numbers: date, mode, policy rates, CPI prints, index levels, yields, FX, and
+scenario probabilities. The prose body is for reading; the frontmatter is for
+tools. This keeps the `sessions/` folder consumable by anything, locally, without
+hosting your data anywhere:
+
+- **Obsidian** — point a vault at this folder (or the `sessions/` subfolder) and
+  the frontmatter shows up as Properties. With the Dataview plugin you can build
+  query-based dashboards, e.g. a table of scenario probabilities over time:
+
+  ```dataview
+  TABLE mode, sp500, home_index, us_cpi_yoy, scenarios
+  FROM "sessions"
+  SORT date DESC
+  ```
+
+- **Static HTML dashboard** — a small script (or a Claude Code task) can parse
+  the frontmatter from all logs into a `data.json` and render charts in a single
+  local HTML file. No server, nothing leaves your machine.
+
+- **Streamlit (later)** — the same frontmatter parses in a few lines of Python
+  (`python-frontmatter` or `pyyaml`), so upgrading to an interactive app needs
+  no changes to the logs themselves.
+
+The schema is append-only: keys may be added over time but never renamed or
+removed, so old logs stay queryable next to new ones.
 
 ---
 

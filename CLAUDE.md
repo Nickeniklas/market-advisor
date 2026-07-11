@@ -44,6 +44,59 @@ declares which. If no mode is given, default to MODE: deep.
 
 ---
 
+## Session Log Frontmatter (both modes)
+
+Every session log file MUST begin with a YAML frontmatter block. This makes the
+`sessions/` folder machine-readable: Obsidian Dataview can query it, and any
+future dashboard (static HTML, Streamlit, etc.) can parse it without scraping
+prose. The markdown body below the frontmatter is for the human; the frontmatter
+is for machines. Numbers may appear in both — that duplication is intentional.
+
+Schema (fill every key; see rules below):
+
+```yaml
+---
+date: YYYY-MM-DD          # must match the date in the filename
+mode: deep                # "deep" or "pulse"
+fed_rate_upper: 5.00      # Fed funds target range, upper bound, in %
+ecb_deposit_rate: 2.25    # ECB deposit facility rate, in %
+home_policy_rate: null    # home central bank rate per persona.md, if different from Fed/ECB
+us_cpi_yoy: 3.1           # latest YoY CPI prints, in %
+eu_cpi_yoy: 2.4
+home_cpi_yoy: null        # home-country CPI per persona.md
+sp500: 5400               # index levels at time of session
+stoxx600: 490
+home_index: 10800         # home market index per persona.md
+ust_10y: 4.62             # 10Y government yields, in %
+bund_10y: 2.71
+eurusd: 1.09
+scenarios:                # deep mode only — omit the key entirely in pulse mode
+  - name: Soft landing
+    probability: 35
+  - name: Stagflation
+    probability: 40
+  - name: Hard landing
+    probability: 25
+material_change: false    # pulse mode only — omit in deep mode
+deep_session_recommended: false  # pulse mode only — omit in deep mode
+tags:
+  - market-session
+  - deep                  # or "pulse"
+---
+```
+
+**Frontmatter rules (strict — dashboards depend on these):**
+- Plain numbers only: no `%`, no thousands separators, no currency symbols,
+  no `~`. Round index levels to whole numbers, rates/yields to two decimals.
+- If a data point couldn't be fetched or doesn't apply, set it to `null`.
+  Never omit a shared key, and never guess a value to fill it.
+- Scenario probabilities are integers that sum to roughly 100.
+- Key names are **append-only**: new keys may be added over time, but existing
+  keys are never renamed or removed, so old logs stay queryable alongside new ones.
+- The frontmatter is a snapshot, not analysis — no opinions, no prose in it.
+
+---
+
 ### MODE: weekly-pulse
 
 A short, automated check-in. The point is continuity, not depth. Most weeks
@@ -70,6 +123,9 @@ What counts as "material":
 Day-to-day index wiggles, single-stock noise, and recycled headlines are NOT material.
 
 Pulse log format (keep it tight):
+- **YAML frontmatter** — per the "Session Log Frontmatter" section above, with
+  `mode: pulse`, the `material_change` and `deep_session_recommended` booleans,
+  and no `scenarios` key
 - **Date**
 - **Macro snapshot** — 3-4 lines, current readings only
 - **What changed since last session** — bullets, or "Nothing material this week."
@@ -137,9 +193,15 @@ next session. These should be genuinely hard questions, not softballs. The goal 
 to build the habit of thinking probabilistically and avoiding narrative bias.
 
 ### Step 6 — Log the Session
-Append a session log to `sessions/YYYY-MM-DD.md` (use today's date). Format:
+Append a session log to `sessions/YYYY-MM-DD.md` (use today's date). Start the
+file with the YAML frontmatter per the "Session Log Frontmatter" section above
+(`mode: deep`, including the `scenarios` list, no pulse-only keys). Then the body:
 
 ```markdown
+---
+[frontmatter per the schema above]
+---
+
 # Session: YYYY-MM-DD
 
 ## Macro Snapshot

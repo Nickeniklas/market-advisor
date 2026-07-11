@@ -6,6 +6,39 @@ your portfolio or market-session history, which live in git-ignored files under
 
 ---
 
+## 2026-07-11 — Machine-readable session logs (YAML frontmatter)
+
+Session logs were prose-only, which made them fine to read but awkward to feed
+into any tooling. The plan is to consume the journal through local, non-hosted
+UIs — Obsidian (Dataview) now, possibly a static HTML dashboard, and maybe
+Streamlit later once activity picks up. Rather than committing to one UI, the
+logs themselves were made machine-readable so any of these can be layered on
+top without touching the data again.
+
+- Added a "Session Log Frontmatter" section to `CLAUDE.md` defining a YAML
+  frontmatter schema every session log must start with: date, mode, policy
+  rates (Fed/ECB/home), CPI prints (US/EU/home), index levels (S&P 500,
+  STOXX 600, home index), 10Y yields (UST/Bund), EUR/USD, scenario
+  probabilities (deep mode), and `material_change` /
+  `deep_session_recommended` booleans (pulse mode).
+- Schema rules: plain numbers only (no %, separators, or ~), `null` for
+  unfetched values instead of guesses or omissions, and **append-only keys** —
+  keys may be added later but never renamed or removed, so old logs stay
+  queryable alongside new ones as tooling evolves.
+- Updated both mode specs in `CLAUDE.md` (pulse log format and deep Step 6) to
+  require the frontmatter block at the top of every log file.
+- Added the frontmatter block to `EXAMPLE-SESSION.md` (generic sample values,
+  no personal data — consistent with the existing tracked/local split).
+- Added a "Machine-Readable Session Logs" section to `README.md` explaining the
+  design and the intended consumers (Obsidian/Dataview with a sample query,
+  static HTML, Streamlit later).
+
+**Net effect:** the `sessions/` folder doubles as a queryable local dataset.
+The prose stays the journal; the frontmatter feeds whatever UI sits on top,
+all locally, with no change needed to logs when upgrading the UI.
+
+---
+
 ## 2026-06-11 — Persona extraction
 
 `CLAUDE.md` previously hardcoded the user's personal context directly into the
