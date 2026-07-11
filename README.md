@@ -5,6 +5,9 @@ A personal macro-financial education tool powered by Claude Code.
 Runs regular analysis sessions to help you understand the current market environment,
 think through risks, and build better mental models for long-term investing.
 
+See [`demo/dashboard.html`](demo/dashboard.html) for sample output (synthetic
+data — no real sessions).
+
 ---
 
 ## Project Structure
@@ -20,6 +23,15 @@ market-advisor/
 ├── run.md                ← How to start a session + tips
 ├── README.md             ← This file
 ├── CHANGELOG.md          ← History of repo/template setup changes (not your portfolio)
+├── tools/
+│   ├── build_dashboard.py       ← Builds dashboard.html from sessions/ frontmatter (stdlib only)
+│   └── dashboard.template.html  ← Dashboard template (generic — data is injected at build time)
+├── obsidian/
+│   └── Market Sessions Dashboard.md  ← Ready-made Dataview queries for an Obsidian vault
+├── demo/                 ← Committed demo: synthetic sample data only, safe to browse/publish
+│   ├── dashboard.html    ← Pre-built dashboard from the synthetic sessions below
+│   └── sessions/         ← 7 synthetic session logs (4 deep, 3 pulse) — no real data
+├── dashboard.html        ← Generated local dashboard (git-ignored — contains your data)
 └── sessions/             ← Auto-logged session outputs (your investment journal, git-ignored)
     └── YYYY-MM-DD.md
 ```
@@ -28,23 +40,26 @@ market-advisor/
 
 ## What Gets Pushed vs. Stays Local
 
-Everything personal lives in two files, both listed in `.gitignore`. Everything
-else in this repo is generic and contains no personal data — safe to push to a
-public remote.
+Everything personal lives in git-ignored files. Everything else in this repo is
+generic and contains no personal data — safe to push to a public remote.
 
 | File | Pushed to git? | Contains |
 |------|-----------------|----------|
 | `CLAUDE.md`, `README.md`, `run.md`, `CHANGELOG.md` | ✅ Yes | Generic instructions/docs only |
 | `persona.template.md`, `portfolio.template.md` | ✅ Yes | Empty templates with `[placeholder]` examples |
 | `EXAMPLE-SESSION.md` | ✅ Yes | Generic sample output, no real numbers |
+| `tools/build_dashboard.py`, `tools/dashboard.template.html` | ✅ Yes | Generic build script + template, no data |
+| `obsidian/Market Sessions Dashboard.md` | ✅ Yes | Generic Dataview queries, no data |
+| `demo/dashboard.html`, `demo/sessions/*.md` | ✅ Yes | Synthetic sample data only — no real sessions, never reads `persona.md`/`portfolio.md`/`sessions/` |
 | **`persona.md`** | ❌ No (git-ignored) | Your country, tax wrappers, platforms, horizon, language |
 | **`portfolio.md`** | ❌ No (git-ignored) | Your holdings, cash, notes |
 | **`sessions/*.md`** | ❌ No (git-ignored) | Your real session logs |
+| **`dashboard.html`** | ❌ No (git-ignored) | Built output — embeds your session data |
 
 If you ever see real personal details (your country, holdings, account numbers,
-etc.) inside `CLAUDE.md`, `README.md`, or any other file from the left column —
-that's a bug. It should only ever live in `persona.md`, `portfolio.md`, or
-`sessions/`.
+etc.) inside `CLAUDE.md`, `README.md`, or any other file from the "pushed" rows —
+that's a bug. It should only ever live in `persona.md`, `portfolio.md`,
+`sessions/`, or `dashboard.html`.
 
 ---
 
@@ -59,6 +74,23 @@ that's a bug. It should only ever live in `persona.md`, `portfolio.md`, or
 4. Paste the prompt from `run.md` (or just say "run a market advisor session")
 5. Read the output, push back with follow-up questions, think about the open questions
 6. Session is auto-logged to `sessions/`
+
+---
+
+## Demo
+
+`demo/` contains a pre-built dashboard (`demo/dashboard.html`) and 7 synthetic
+session logs (`demo/sessions/`) so anyone browsing the repo can see the output
+without running anything or filling in `persona.md`/`portfolio.md`. All values
+are made up — no real session, holding, or personal detail is ever read into
+it. Open `demo/dashboard.html` directly in a browser, or serve the `demo/`
+folder via GitHub Pages for a shareable live link.
+
+It was built with:
+
+```
+python3 tools/build_dashboard.py --sessions-dir demo/sessions --output demo/dashboard.html
+```
 
 ---
 
@@ -80,25 +112,50 @@ Every session log starts with a YAML frontmatter block (schema defined in
 key numbers: date, mode, policy rates, CPI prints, index levels, yields, FX, and
 scenario probabilities. The prose body is for reading; the frontmatter is for
 tools. This keeps the `sessions/` folder consumable by anything, locally, without
-hosting your data anywhere:
+hosting your data anywhere. Three frontends exist or are planned:
 
-- **Obsidian** — point a vault at this folder (or the `sessions/` subfolder) and
-  the frontmatter shows up as Properties. With the Dataview plugin you can build
-  query-based dashboards, e.g. a table of scenario probabilities over time:
+### 1. Local HTML dashboard (built, primary)
 
-  ```dataview
-  TABLE mode, sp500, home_index, us_cpi_yoy, scenarios
-  FROM "sessions"
-  SORT date DESC
-  ```
+```
+python3 tools/build_dashboard.py
+```
 
-- **Static HTML dashboard** — a small script (or a Claude Code task) can parse
-  the frontmatter from all logs into a `data.json` and render charts in a single
-  local HTML file. No server, nothing leaves your machine.
+Parses the frontmatter from every log in `sessions/`, injects it into
+`tools/dashboard.template.html`, and writes a single self-contained
+`dashboard.html` in the repo root. Open it directly in any browser — it works
+over `file://`, needs no server and no dependencies (charts are hand-rolled
+SVG; the only network use is optional font loading, and it degrades to system
+fonts offline).
 
-- **Streamlit (later)** — the same frontmatter parses in a few lines of Python
-  (`python-frontmatter` or `pyyaml`), so upgrading to an interactive app needs
-  no changes to the logs themselves.
+What it shows:
+- **Scenario drift** — stacked probability bands across deep sessions
+- **Session cadence** — deep/pulse ticks on a real-time axis
+- **Macro small-multiples** — every numeric series as latest value + delta + sparkline
+- **Session table** — newest first, with flags and links to the raw logs
+
+Conventions the dashboard respects: `null` values render as gaps, never guesses;
+`backfilled: true` sessions get hollow markers everywhere so reconstructed
+numbers are visually distinct from live ones; series that were never recorded
+(all `null`) are hidden. Rebuild after each session — it takes under a second.
+To show your local names (e.g. rename "Home index" to your actual index), edit
+the `LABELS` object at the top of the template's script.
+
+`dashboard.html` embeds your data, so it's git-ignored like the logs themselves.
+
+### 2. Obsidian (Dataview)
+
+Point a vault at this repo folder and the frontmatter shows up as Properties.
+`obsidian/Market Sessions Dashboard.md` is a ready-made dashboard note with
+Dataview queries: all sessions, scenario probabilities per deep session, pulses
+that flagged something, backfilled logs, and the latest reading. Requires the
+Dataview community plugin.
+
+### 3. Streamlit (later)
+
+The same frontmatter parses in a few lines of Python (`python-frontmatter` or
+`pyyaml`), so upgrading to an interactive app needs no changes to the logs —
+and `tools/build_dashboard.py` already contains a reusable parser
+(`parse_frontmatter`) a Streamlit app can import directly.
 
 The schema is append-only: keys may be added over time but never renamed or
 removed, so old logs stay queryable next to new ones.
@@ -110,8 +167,9 @@ removed, so old logs stay queryable next to new ones.
 - `persona.md` is mostly a one-time setup — revisit it only if you move countries,
   switch brokers, or your tax situation changes
 - Update `portfolio.md` before each session (especially "What I'm Thinking About")
-- `persona.md`, `portfolio.md`, and `sessions/*.md` are git-ignored — they hold
-  your personal details and financial data and won't be committed to this repo.
-  If you want version history for these over time, keep a separate private repo
-  or local backups for these files.
+- Re-run `python3 tools/build_dashboard.py` after each session to refresh the dashboard
+- `persona.md`, `portfolio.md`, `sessions/*.md`, and `dashboard.html` are
+  git-ignored — they hold your personal details and financial data and won't be
+  committed to this repo. If you want version history for these over time, keep
+  a separate private repo or local backups for these files.
 - Sessions folder builds into a personal investment journal over months/years (locally)

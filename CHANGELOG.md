@@ -6,6 +6,74 @@ your portfolio or market-session history, which live in git-ignored files under
 
 ---
 
+## 2026-07-11 — Committed demo dashboard (synthetic data)
+
+There was no way to see the dashboard's output without setting up
+`persona.md`/`portfolio.md` and running real sessions first. A committed demo
+closes that gap without ever touching personal data.
+
+- Added `demo/sessions/` — 7 synthetic session logs (4 deep, 3 pulse) dated
+  across April–July 2026, following the exact frontmatter schema from
+  `CLAUDE.md`. One log is `backfilled: true` and `home_policy_rate` /
+  one `home_cpi_yoy` entry are `null`, so the demo also shows how the
+  dashboard renders those cases. All values are generic sample numbers in the
+  same range as `EXAMPLE-SESSION.md`; none of it is derived from any real
+  `persona.md`, `portfolio.md`, or `sessions/` content.
+- Added `demo/dashboard.html` — built from those logs via
+  `tools/build_dashboard.py`, committed so it's browsable directly from the
+  repo (or servable via GitHub Pages) without running anything locally.
+- Added `--sessions-dir` and `--output` CLI args to
+  `tools/build_dashboard.py` (both optional, defaults unchanged) so the same
+  script builds either the real local dashboard or the demo one.
+- Fixed `.gitignore`: the `dashboard.html` rule was unrooted and was
+  incidentally also matching `demo/dashboard.html`; anchored it to
+  `/dashboard.html` so only the real, git-ignored root file is excluded.
+- Updated `README.md`: project structure tree, pushed-vs-local table, and a
+  new "Demo" section pointing at `demo/dashboard.html`.
+
+**Net effect:** `demo/dashboard.html` gives anyone browsing the repo a working
+sample of the dashboard with zero setup, built from entirely synthetic data.
+
+---
+
+## 2026-07-11 — Local dashboard frontends (HTML build + Obsidian note)
+
+With all session logs now carrying machine-readable frontmatter (see entry
+below), the first consumers were added. Everything stays local; no data is
+hosted anywhere.
+
+- Added `tools/build_dashboard.py` — a stdlib-only Python script that parses
+  the frontmatter of every log in `sessions/`, validates it against the schema
+  (warns on missing keys and improbable scenario sums, skips malformed files
+  loudly rather than silently), and writes a single self-contained
+  `dashboard.html` to the repo root.
+- Added `tools/dashboard.template.html` — the dashboard itself: hand-rolled
+  SVG charts, no JS dependencies, works over `file://` with no server. Shows
+  scenario-probability drift across deep sessions (stacked bands), a
+  real-time session-cadence strip (deep vs pulse ticks), small-multiple
+  sparklines for every numeric series with latest value + delta, and a
+  session table linking to the raw logs. Respects the schema's conventions:
+  `null` renders as a gap, `backfilled: true` sessions get hollow markers,
+  never-recorded series are hidden. A `LABELS` object at the top of the
+  template lets local names (home index etc.) be renamed without touching
+  anything else — the tracked template stays generic.
+- Added `obsidian/Market Sessions Dashboard.md` — a ready-made Dataview
+  dashboard note (all sessions, scenarios per deep session, flagged pulses,
+  backfilled logs, latest reading) for anyone pointing an Obsidian vault at
+  the repo.
+- Git-ignored `dashboard.html` — it embeds real session data, so it follows
+  the same tracked/local split as the logs it's built from.
+- Updated `README.md`: project structure, pushed-vs-local table, and a
+  rewritten "Machine-Readable Session Logs" section documenting the three
+  frontends (HTML now, Obsidian now, Streamlit later — the build script's
+  `parse_frontmatter` is importable by a future Streamlit app as-is).
+
+**Net effect:** `python3 tools/build_dashboard.py` after any session produces
+an up-to-date local dashboard in one file; Obsidian users get the same data
+via Dataview; the Streamlit upgrade path needs no changes to the logs.
+
+---
+
 ## 2026-07-11 — Machine-readable session logs (YAML frontmatter)
 
 Session logs were prose-only, which made them fine to read but awkward to feed

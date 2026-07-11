@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Market Advisor — Session Journal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Serif:ital,wght@0,500;1,400&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#EDF0EE;
+    --card:#F8FAF8;
+    --ink:#1C2B33;
+    --muted:#5D6E74;
+    --rule:#C7D0CC;
+    --rule-soft:#DCE2DF;
+    --line:#2E5E73;
+    --sc-soft:#3E7A5E;
+    --sc-mid:#C08A2D;
+    --sc-hard:#9E3B32;
+    --sc-x1:#5E5A86;
+    --sc-x2:#7A5E3E;
+    --serif:"IBM Plex Serif",Georgia,serif;
+    --sans:"IBM Plex Sans",system-ui,sans-serif;
+    --mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+  }
+  *{box-sizing:border-box}
+  html{background:var(--paper)}
+  body{
+    margin:0;color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.5;
+    background:
+      linear-gradient(var(--paper) 0 0) padding-box,
+      repeating-linear-gradient(0deg,transparent 0 31px,rgba(46,94,115,.055) 31px 32px),
+      repeating-linear-gradient(90deg,transparent 0 31px,rgba(46,94,115,.055) 31px 32px),
+      var(--paper);
+  }
+  .wrap{max-width:1020px;margin:0 auto;padding:28px 20px 72px}
+  a{color:var(--line)}
+  a:focus-visible,button:focus-visible{outline:2px solid var(--line);outline-offset:2px}
+
+  /* masthead */
+  header{border-bottom:2px solid var(--ink);padding-bottom:14px;margin-bottom:26px}
+  .eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+  h1{font-family:var(--serif);font-weight:500;font-size:clamp(26px,4.5vw,38px);margin:4px 0 6px;letter-spacing:-.01em}
+  .mast-meta{font-family:var(--mono);font-size:12px;color:var(--muted);display:flex;gap:18px;flex-wrap:wrap}
+  .mast-meta b{color:var(--ink);font-weight:500}
+
+  section{margin:34px 0}
+  h2{font-family:var(--serif);font-weight:500;font-size:20px;margin:0 0 4px}
+  .sub{font-size:13px;color:var(--muted);margin:0 0 14px;max-width:64ch}
+
+  .panel{background:var(--card);border:1px solid var(--rule);border-radius:6px;padding:16px 18px}
+
+  /* scenario band */
+  .legend{display:flex;gap:16px;flex-wrap:wrap;font-family:var(--mono);font-size:12px;margin-top:10px}
+  .legend span{display:inline-flex;align-items:center;gap:6px;color:var(--muted)}
+  .swatch{width:11px;height:11px;border-radius:2px;display:inline-block}
+
+  /* cadence strip */
+  .cadence{margin-top:14px;border-top:1px dashed var(--rule);padding-top:10px}
+  .cadence .lab{font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:4px}
+
+  /* small multiples */
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(232px,1fr));gap:14px}
+  .card{background:var(--card);border:1px solid var(--rule);border-radius:6px;padding:12px 14px 8px;
+        display:flex;flex-direction:column;gap:2px}
+  .card .name{font-size:12px;font-weight:600;letter-spacing:.02em;color:var(--muted);text-transform:uppercase}
+  .card .val{font-family:var(--mono);font-size:22px;font-weight:500;font-variant-numeric:tabular-nums}
+  .card .delta{font-family:var(--mono);font-size:12px;font-variant-numeric:tabular-nums;color:var(--muted)}
+  .delta.up{color:var(--sc-soft)} .delta.down{color:var(--sc-hard)}
+  .card svg{margin-top:6px}
+
+  /* table */
+  table{width:100%;border-collapse:collapse;font-size:13px;background:var(--card);
+        border:1px solid var(--rule);border-radius:6px;overflow:hidden}
+  th,td{text-align:left;padding:8px 12px;border-bottom:1px solid var(--rule-soft)}
+  th{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;
+     color:var(--muted);font-weight:500;border-bottom:1px solid var(--rule)}
+  tr:last-child td{border-bottom:none}
+  td.num{font-family:var(--mono);font-variant-numeric:tabular-nums}
+  .pill{font-family:var(--mono);font-size:11px;border:1px solid var(--rule);border-radius:99px;
+        padding:1px 8px;color:var(--muted);white-space:nowrap}
+  .pill.deep{border-color:var(--line);color:var(--line)}
+  .flag{font-family:var(--mono);font-size:11px;color:var(--sc-hard)}
+
+  footer{margin-top:48px;border-top:1px solid var(--rule);padding-top:12px;
+         font-family:var(--mono);font-size:11px;color:var(--muted)}
+
+  @media (prefers-reduced-motion:no-preference){
+    section{animation:rise .5s ease both}
+    section:nth-of-type(2){animation-delay:.08s}
+    section:nth-of-type(3){animation-delay:.16s}
+    @keyframes rise{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+  }
+  @media (max-width:560px){ .wrap{padding:20px 14px 56px} th,td{padding:7px 8px} }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="eyebrow">Private statistical bulletin · local file · no server</div>
+    <h1>Market Advisor — Session Journal</h1>
+    <div class="mast-meta" id="mastMeta"></div>
+  </header>
+
+  <section>
+    <h2>Scenario drift</h2>
+    <p class="sub">How the three scenario probabilities from each deep session have shifted over time.
+       Stacked to 100%. Hollow markers are backfilled sessions — values reconstructed from prose, read with care.</p>
+    <div class="panel">
+      <div id="scenarioChart"></div>
+      <div class="legend" id="scenarioLegend"></div>
+      <div class="cadence">
+        <div class="lab">Session cadence (real time · tall = deep, short = pulse, hollow = backfilled)</div>
+        <div id="cadenceStrip"></div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Macro series</h2>
+    <p class="sub">One point per session, equal spacing. Latest value, change since previous reading, and the full history as a line. Gaps mean the value was <code>null</code> for that session.</p>
+    <div class="grid" id="seriesGrid"></div>
+  </section>
+
+  <section>
+    <h2>Sessions</h2>
+    <table id="sessionTable">
+      <thead><tr>
+        <th>Date</th><th>Mode</th><th>Scenarios (%)</th><th>S&amp;P 500</th><th>US CPI</th><th>Flags</th><th>Log</th>
+      </tr></thead>
+      <tbody></tbody>
+    </table>
+  </section>
+
+  <footer id="foot"></footer>
+</div>
+
+<script>
+const DATA = {"generated": "2026-07-11", "sessions": [{"date": "2026-04-10", "mode": "deep", "fed_rate_upper": 5.0, "ecb_deposit_rate": 2.5, "home_policy_rate": null, "us_cpi_yoy": 3.2, "eu_cpi_yoy": 2.5, "home_cpi_yoy": null, "sp500": 5310, "stoxx600": 486, "home_index": 10650, "ust_10y": 4.7, "bund_10y": 2.65, "eurusd": 1.08, "backfilled": true, "scenarios": [{"name": "Soft landing", "probability": 30}, {"name": "Stagflation", "probability": 45}, {"name": "Hard landing", "probability": 25}], "tags": ["market-session", "deep"], "_file": "2026-04-10.md"}, {"date": "2026-05-08", "mode": "deep", "fed_rate_upper": 5.0, "ecb_deposit_rate": 2.25, "home_policy_rate": null, "us_cpi_yoy": 3.1, "eu_cpi_yoy": 2.4, "home_cpi_yoy": 2.1, "sp500": 5400, "stoxx600": 490, "home_index": 10800, "ust_10y": 4.62, "bund_10y": 2.71, "eurusd": 1.09, "backfilled": false, "scenarios": [{"name": "Soft landing", "probability": 35}, {"name": "Stagflation", "probability": 40}, {"name": "Hard landing", "probability": 25}], "tags": ["market-session", "deep"], "_file": "2026-05-08.md"}, {"date": "2026-05-22", "mode": "pulse", "fed_rate_upper": 5.0, "ecb_deposit_rate": 2.25, "home_policy_rate": null, "us_cpi_yoy": 3.1, "eu_cpi_yoy": 2.4, "home_cpi_yoy": 2.1, "sp500": 5455, "stoxx600": 494, "home_index": 10870, "ust_10y": 4.55, "bund_10y": 2.68, "eurusd": 1.1, "backfilled": false, "material_change": false, "deep_session_recommended": false, "tags": ["market-session", "pulse"], "_file": "2026-05-22-pulse.md"}, {"date": "2026-06-05", "mode": "pulse", "fed_rate_upper": 5.0, "ecb_deposit_rate": 2.25, "home_policy_rate": null, "us_cpi_yoy": 3.4, "eu_cpi_yoy": 2.6, "home_cpi_yoy": 2.3, "sp500": 5320, "stoxx600": 485, "home_index": 10700, "ust_10y": 4.78, "bund_10y": 2.8, "eurusd": 1.07, "backfilled": false, "material_change": true, "deep_session_recommended": true, "tags": ["market-session", "pulse"], "_file": "2026-06-05-pulse.md"}, {"date": "2026-06-08", "mode": "deep", "fed_rate_upper": 5.0, "ecb_deposit_rate": 2.25, "home_policy_rate": null, "us_cpi_yoy": 3.4, "eu_cpi_yoy": 2.6, "home_cpi_yoy": 2.3, "sp500": 5290, "stoxx600": 482, "home_index": 10640, "ust_10y": 4.82, "bund_10y": 2.83, "eurusd": 1.07, "backfilled": false, "scenarios": [{"name": "Soft landing", "probability": 25}, {"name": "Stagflation", "probability": 50}, {"name": "Hard landing", "probability": 25}], "tags": ["market-session", "deep"], "_file": "2026-06-08.md"}, {"date": "2026-07-03", "mode": "pulse", "fed_rate_upper": 4.75, "ecb_deposit_rate": 2.25, "home_policy_rate": null, "us_cpi_yoy": 3.3, "eu_cpi_yoy": 2.5, "home_cpi_yoy": 2.2, "sp500": 5480, "stoxx600": 495, "home_index": 10920, "ust_10y": 4.5, "bund_10y": 2.74, "eurusd": 1.11, "backfilled": false, "material_change": true, "deep_session_recommended": false, "tags": ["market-session", "pulse"], "_file": "2026-07-03-pulse.md"}, {"date": "2026-07-10", "mode": "deep", "fed_rate_upper": 4.75, "ecb_deposit_rate": 2.25, "home_policy_rate": null, "us_cpi_yoy": 3.3, "eu_cpi_yoy": 2.5, "home_cpi_yoy": 2.2, "sp500": 5510, "stoxx600": 497, "home_index": 10980, "ust_10y": 4.44, "bund_10y": 2.7, "eurusd": 1.11, "backfilled": false, "scenarios": [{"name": "Soft landing", "probability": 40}, {"name": "Stagflation", "probability": 40}, {"name": "Hard landing", "probability": 20}], "tags": ["market-session", "deep"], "_file": "2026-07-10.md"}]};
+
+/* Edit these if you want your local names shown (kept generic so the repo
+   template stays shareable — e.g. "Home index" -> "OMX Helsinki"). */
+const LABELS = {
+  fed_rate_upper:  "Fed funds (upper)",
+  ecb_deposit_rate:"ECB deposit rate",
+  home_policy_rate:"Home policy rate",
+  us_cpi_yoy:      "US CPI y/y",
+  eu_cpi_yoy:      "Euro area CPI y/y",
+  home_cpi_yoy:    "Home CPI y/y",
+  sp500:           "S&P 500",
+  stoxx600:        "STOXX 600",
+  home_index:      "Home index",
+  ust_10y:         "10Y US Treasury",
+  bund_10y:        "10Y Bund",
+  eurusd:          "EUR/USD",
+};
+const SERIES = [
+  {key:"fed_rate_upper",unit:"%",dec:2},{key:"ecb_deposit_rate",unit:"%",dec:2},
+  {key:"home_policy_rate",unit:"%",dec:2},{key:"us_cpi_yoy",unit:"%",dec:1},
+  {key:"eu_cpi_yoy",unit:"%",dec:1},{key:"home_cpi_yoy",unit:"%",dec:1},
+  {key:"sp500",unit:"",dec:0},{key:"stoxx600",unit:"",dec:0},
+  {key:"home_index",unit:"",dec:0},{key:"ust_10y",unit:"%",dec:2},
+  {key:"bund_10y",unit:"%",dec:2},{key:"eurusd",unit:"",dec:3},
+];
+const SC_COLORS = ["var(--sc-soft)","var(--sc-mid)","var(--sc-hard)","var(--sc-x1)","var(--sc-x2)"];
+function scenarioColor(name, fallbackIdx){
+  const n = (name||"").toLowerCase();
+  if (n.includes("soft") || n.includes("goldilocks")) return "var(--sc-soft)";
+  if (n.includes("stagfl") || n.includes("sticky") || n.includes("inflat")) return "var(--sc-mid)";
+  if (n.includes("hard") || n.includes("recess") || n.includes("crash")) return "var(--sc-hard)";
+  return SC_COLORS[fallbackIdx % SC_COLORS.length];
+}
+
+const S = DATA.sessions;
+const esc = s => String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+const fmt = (v,dec) => v==null ? "—" : Number(v).toLocaleString("en-US",{minimumFractionDigits:dec,maximumFractionDigits:dec});
+
+/* ---------- masthead ---------- */
+(function(){
+  const deep = S.filter(s=>s.mode==="deep").length, pulse = S.length-deep;
+  const first = S[0], last = S[S.length-1];
+  document.getElementById("mastMeta").innerHTML =
+    `<span><b>${S.length}</b> sessions (${deep} deep · ${pulse} pulse)</span>` +
+    `<span>${esc(first?first.date:"—")} → <b>${esc(last?last.date:"—")}</b></span>` +
+    `<span>built ${esc(DATA.generated)}</span>`;
+  document.getElementById("foot").textContent =
+    "Generated locally by tools/build_dashboard.py from sessions/*.md frontmatter. " +
+    "This file contains personal data — it is git-ignored; keep it local.";
+})();
+
+/* ---------- scenario drift band ---------- */
+(function(){
+  const el = document.getElementById("scenarioChart");
+  const deeps = S.filter(s => s.mode==="deep" && Array.isArray(s.scenarios) && s.scenarios.length);
+  if (!deeps.length){
+    el.innerHTML = "<p class='sub'>No deep sessions with scenarios yet — run a deep session and rebuild.</p>";
+    return;
+  }
+  // union of scenario names in order of first appearance
+  const names = [];
+  deeps.forEach(s => s.scenarios.forEach(sc => { if (sc.name && !names.includes(sc.name)) names.push(sc.name); }));
+  // per-session normalized shares
+  const shares = deeps.map(s => {
+    const map = {}; let tot = 0;
+    s.scenarios.forEach(sc => { if (typeof sc.probability==="number"){ map[sc.name]=sc.probability; tot+=sc.probability; }});
+    names.forEach(n => map[n] = tot>0 ? (map[n]||0)/tot : 0);
+    return map;
+  });
+
+  const W=960,H=280,mL=44,mR=14,mT=12,mB=34;
+  const iw=W-mL-mR, ih=H-mT-mB, n=deeps.length;
+  const x = i => n===1 ? mL+iw/2 : mL + iw*i/(n-1);
+  const y = f => mT + ih*(1-f);
+
+  let svg = `<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="Stacked scenario probabilities over deep sessions" style="display:block">`;
+  // y gridlines at 0/25/50/75/100
+  for (const p of [0,.25,.5,.75,1]){
+    svg += `<line x1="${mL}" y1="${y(p)}" x2="${W-mR}" y2="${y(p)}" stroke="var(--rule-soft)" stroke-width="1"/>` +
+           `<text x="${mL-8}" y="${y(p)+4}" text-anchor="end" font-family="var(--mono)" font-size="11" fill="var(--muted)">${p*100}</text>`;
+  }
+  if (n===1){
+    // single deep session: one stacked column
+    let acc=0; const bw=Math.min(120,iw*0.3);
+    names.forEach((nm,i)=>{
+      const f=shares[0][nm]; if(!f) return;
+      const y1=y(acc+f), h=y(acc)-y(acc+f);
+      svg += `<rect x="${x(0)-bw/2}" y="${y1}" width="${bw}" height="${h}" fill="${scenarioColor(nm,i)}" opacity="0.85"><title>${esc(nm)} ${Math.round(f*100)}%</title></rect>`;
+      acc+=f;
+    });
+  } else {
+    // stacked areas
+    const cum = shares.map(m => { let a=0; const row={}; names.forEach(nm=>{ a+=m[nm]; row[nm]=a; }); return row; });
+    names.forEach((nm,i)=>{
+      let top="",bot="";
+      for (let k=0;k<n;k++){ top += `${k?"L":"M"}${x(k).toFixed(1)},${y(cum[k][nm]).toFixed(1)} `; }
+      for (let k=n-1;k>=0;k--){ const prev = i===0?0:cum[k][names[i-1]]; bot += `L${x(k).toFixed(1)},${y(prev).toFixed(1)} `; }
+      svg += `<path d="${top}${bot}Z" fill="${scenarioColor(nm,i)}" opacity="0.82"><title>${esc(nm)}</title></path>`;
+    });
+    // boundary lines for crispness
+    names.forEach((nm,i)=>{
+      let d=""; for (let k=0;k<n;k++) d += `${k?"L":"M"}${x(k).toFixed(1)},${y(cum[k][nm]).toFixed(1)} `;
+      svg += `<path d="${d}" fill="none" stroke="var(--paper)" stroke-width="1.5"/>`;
+    });
+  }
+  // x labels + per-session markers (hollow when backfilled)
+  deeps.forEach((s,k)=>{
+    const bf = s.backfilled===true;
+    svg += `<text x="${x(k)}" y="${H-10}" text-anchor="middle" font-family="var(--mono)" font-size="11" fill="var(--muted)">${esc(s.date.slice(5))}</text>`;
+    const tip = names.map((nm,i)=>`${nm}: ${Math.round(shares[k][nm]*100)}%`).join(" · ");
+    svg += `<circle cx="${x(k)}" cy="${mT+4}" r="4.5" fill="${bf?"var(--card)":"var(--ink)"}" stroke="var(--ink)" stroke-width="1.5"><title>${esc(s.date)} — ${esc(tip)}${bf?" (backfilled)":""}</title></circle>`;
+  });
+  svg += `</svg>`;
+  el.innerHTML = svg;
+
+  document.getElementById("scenarioLegend").innerHTML = names.map((nm,i)=>
+    `<span><i class="swatch" style="background:${scenarioColor(nm,i)}"></i>${esc(nm)}</span>`).join("") +
+    `<span><i class="swatch" style="background:var(--card);border:1.5px solid var(--ink);border-radius:99px"></i>backfilled</span>`;
+})();
+
+/* ---------- cadence strip (real-time axis) ---------- */
+(function(){
+  const el = document.getElementById("cadenceStrip");
+  if (S.length < 1){ el.innerHTML=""; return; }
+  const t = s => new Date(s.date+"T00:00:00").getTime();
+  const t0 = t(S[0]), t1 = t(S[S.length-1]) || t0+1;
+  const W=960,H=44,m=14;
+  const x = s => S.length===1 || t1===t0 ? W/2 : m + (W-2*m)*(t(s)-t0)/(t1-t0);
+  let svg = `<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="Session cadence over real time" style="display:block">`;
+  svg += `<line x1="${m}" y1="${H-14}" x2="${W-m}" y2="${H-14}" stroke="var(--rule)" stroke-width="1"/>`;
+  S.forEach(s=>{
+    const deep = s.mode==="deep", bf = s.backfilled===true;
+    const h = deep?22:11, X = x(s).toFixed(1);
+    svg += `<line x1="${X}" y1="${H-14}" x2="${X}" y2="${H-14-h}" stroke="${deep?"var(--line)":"var(--muted)"}" stroke-width="${deep?3:2}" ${bf?'stroke-dasharray="2 2"':""} stroke-linecap="round"><title>${esc(s.date)} · ${esc(s.mode)}${bf?" · backfilled":""}</title></line>`;
+  });
+  svg += `<text x="${m}" y="${H-2}" font-family="var(--mono)" font-size="10" fill="var(--muted)">${esc(S[0].date)}</text>`;
+  svg += `<text x="${W-m}" y="${H-2}" text-anchor="end" font-family="var(--mono)" font-size="10" fill="var(--muted)">${esc(S[S.length-1].date)}</text>`;
+  el.innerHTML = svg + "</svg>";
+})();
+
+/* ---------- small multiples ---------- */
+(function(){
+  const grid = document.getElementById("seriesGrid");
+  const html = [];
+  for (const cfg of SERIES){
+    const pts = S.map(s => (typeof s[cfg.key]==="number") ? s[cfg.key] : null);
+    const nums = pts.filter(v=>v!=null);
+    if (!nums.length) continue;                      // series never recorded — skip card
+    const last = nums[nums.length-1];
+    const prev = nums.length>1 ? nums[nums.length-2] : null;
+    const d = prev==null ? null : last-prev;
+    const dCls = d==null||d===0 ? "" : d>0 ? "up" : "down";
+    const dTxt = d==null ? "first reading" :
+      (d===0 ? "unchanged" : `${d>0?"+":"−"}${fmt(Math.abs(d),cfg.dec)}${cfg.unit} vs prev`);
+
+    // sparkline
+    const W=300,H=84,m=6;
+    const lo=Math.min(...nums), hi=Math.max(...nums), span=(hi-lo)||1;
+    const X=i=> pts.length===1 ? W/2 : m+(W-2*m)*i/(pts.length-1);
+    const Y=v=> m+(H-2*m)*(1-(v-lo)/span);
+    let path="", pen=false;
+    pts.forEach((v,i)=>{ if(v==null){pen=false;return;} path += `${pen?"L":"M"}${X(i).toFixed(1)},${Y(v).toFixed(1)} `; pen=true; });
+    let dots="";
+    pts.forEach((v,i)=>{ if(v==null) return;
+      const bf = S[i].backfilled===true;
+      dots += `<circle cx="${X(i).toFixed(1)}" cy="${Y(v).toFixed(1)}" r="3" fill="${bf?"var(--card)":"var(--line)"}" stroke="var(--line)" stroke-width="1.4"><title>${esc(S[i].date)}: ${fmt(v,cfg.dec)}${cfg.unit}${bf?" (backfilled)":""}</title></circle>`;
+    });
+    html.push(`<div class="card">
+      <div class="name">${esc(LABELS[cfg.key]||cfg.key)}</div>
+      <div class="val">${fmt(last,cfg.dec)}${cfg.unit}</div>
+      <div class="delta ${dCls}">${dTxt}</div>
+      <svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="${esc(LABELS[cfg.key]||cfg.key)} history">
+        <line x1="${m}" y1="${H-m}" x2="${W-m}" y2="${H-m}" stroke="var(--rule-soft)"/>
+        <path d="${path}" fill="none" stroke="var(--line)" stroke-width="2" stroke-linejoin="round"/>
+        ${dots}
+      </svg></div>`);
+  }
+  grid.innerHTML = html.join("") || "<p class='sub'>No numeric data found in any session.</p>";
+})();
+
+/* ---------- session table (newest first) ---------- */
+(function(){
+  const tb = document.querySelector("#sessionTable tbody");
+  tb.innerHTML = [...S].reverse().map(s=>{
+    const sc = (s.mode==="deep" && Array.isArray(s.scenarios) && s.scenarios.length)
+      ? s.scenarios.map(x=>x.probability??"—").join(" / ") : "—";
+    const flags = [
+      s.backfilled===true ? "backfilled" : null,
+      s.material_change===true ? "material change" : null,
+      s.deep_session_recommended===true ? "deep recommended" : null,
+    ].filter(Boolean).join(" · ") || "";
+    return `<tr>
+      <td class="num">${esc(s.date)}</td>
+      <td><span class="pill ${s.mode==="deep"?"deep":""}">${esc(s.mode||"?")}</span></td>
+      <td class="num" title="${esc((s.scenarios||[]).map(x=>x.name).join(" / "))}">${esc(sc)}</td>
+      <td class="num">${fmt(s.sp500,0)}</td>
+      <td class="num">${s.us_cpi_yoy==null?"—":fmt(s.us_cpi_yoy,1)+"%"}</td>
+      <td><span class="flag">${esc(flags)}</span></td>
+      <td><a href="sessions/${encodeURIComponent(s._file)}">open</a></td>
+    </tr>`;
+  }).join("");
+})();
+</script>
+</body>
+</html>
