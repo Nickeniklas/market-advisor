@@ -13,6 +13,7 @@ home_index: 10800
 ust_10y: 4.62
 bund_10y: 2.71
 eurusd: 1.09
+backfilled: false
 scenarios:
   - name: Soft landing
     probability: 35

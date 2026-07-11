@@ -32,6 +32,12 @@ top without touching the data again.
 - Added a "Machine-Readable Session Logs" section to `README.md` explaining the
   design and the intended consumers (Obsidian/Dataview with a sample query,
   static HTML, Streamlit later).
+- Backfilled the frontmatter schema into the eight pre-existing session logs
+  (prose-only, predating this feature), using `null` for anything not stated
+  in the prose. Added a `backfilled` key to the schema (required, `false` on
+  every live session, `true` only on these reconstructed logs) so any
+  consumer can distinguish numbers captured live from values inferred after
+  the fact from prose.
 
 **Net effect:** the `sessions/` folder doubles as a queryable local dataset.
 The prose stays the journal; the frontmatter feeds whatever UI sits on top,

@@ -70,6 +70,7 @@ home_index: 10800         # home market index per persona.md
 ust_10y: 4.62             # 10Y government yields, in %
 bund_10y: 2.71
 eurusd: 1.09
+backfilled: false          # true only if frontmatter was reconstructed from prose after the fact
 scenarios:                # deep mode only — omit the key entirely in pulse mode
   - name: Soft landing
     probability: 35
@@ -94,6 +95,10 @@ tags:
 - Key names are **append-only**: new keys may be added over time, but existing
   keys are never renamed or removed, so old logs stay queryable alongside new ones.
 - The frontmatter is a snapshot, not analysis — no opinions, no prose in it.
+- `backfilled` is required and written explicitly by every live session as
+  `false`. It is `true` only on logs where the frontmatter was added
+  retroactively by parsing the prose — treat those values as inferred, and
+  check the prose body if one looks doubtful.
 
 ---
 
