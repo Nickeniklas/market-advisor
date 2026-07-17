@@ -114,6 +114,14 @@ scenario probabilities. The prose body is for reading; the frontmatter is for
 tools. This keeps the `sessions/` folder consumable by anything, locally, without
 hosting your data anywhere. Three frontends exist or are planned:
 
+Each deep-session scenario may also carry an optional `family` slug — a short,
+free-form identifier for the underlying concept (e.g. `stagflation`,
+`soft-landing`) so tooling can tell a re-weighting of the same idea across
+sessions apart from a genuinely new one. Scenarios are generated fresh each
+session and are never assumed to be the same concept just because the name
+matches — continuity is only ever declared explicitly via a shared `family`.
+See "Scenario families" in `CLAUDE.md` for the rules on reusing vs. coining slugs.
+
 ### 1. Local HTML dashboard (built, primary)
 
 ```
@@ -128,7 +136,10 @@ SVG; the only network use is optional font loading, and it degrades to system
 fonts offline).
 
 What it shows:
-- **Scenario drift** — stacked probability bands across deep sessions
+- **Scenario drift** — one stacked column per deep session; thin ribbons connect
+  segments across adjacent deep sessions only when they share a declared
+  `family` — no shared family means no ribbon, so the chart never fabricates
+  continuity a session didn't actually declare
 - **Session cadence** — deep/pulse ticks on a real-time axis
 - **Macro small-multiples** — every numeric series as latest value + delta + sparkline
 - **Session table** — newest first, with flags and links to the raw logs
@@ -136,7 +147,11 @@ What it shows:
 Conventions the dashboard respects: `null` values render as gaps, never guesses;
 `backfilled: true` sessions get hollow markers everywhere so reconstructed
 numbers are visually distinct from live ones; series that were never recorded
-(all `null`) are hidden. Rebuild after each session — it takes under a second.
+(all `null`) are hidden; scenarios without a `family` (including every log
+predating that key) still render fine, just standalone, with no ribbon claiming
+a continuity that wasn't declared. Rebuild after each session — it takes under
+a second; it also warns if two `family` slugs look like probable drift (one a
+prefix or suffix-variant of the other) so slug fragmentation gets caught early.
 To show your local names (e.g. rename "Home index" to your actual index), edit
 the `LABELS` object at the top of the template's script.
 

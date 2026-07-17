@@ -73,10 +73,13 @@ eurusd: 1.09
 backfilled: false          # true only if frontmatter was reconstructed from prose after the fact
 scenarios:                # deep mode only — omit the key entirely in pulse mode
   - name: Soft landing
+    family: soft-landing   # optional — see "Scenario families" below
     probability: 35
   - name: Stagflation
+    family: stagflation
     probability: 40
   - name: Hard landing
+    family: hard-landing
     probability: 25
 material_change: false    # pulse mode only — omit in deep mode
 deep_session_recommended: false  # pulse mode only — omit in deep mode
@@ -99,6 +102,29 @@ tags:
   `false`. It is `true` only on logs where the frontmatter was added
   retroactively by parsing the prose — treat those values as inferred, and
   check the prose body if one looks doubtful.
+
+**Scenario families:**
+
+Scenarios are generated fresh each deep session and may be entirely new
+concepts — nothing guarantees "Stagflation" in one session is the same idea as
+"Stagflation" in the next, and a chart that assumes name continuity across
+sessions produces a meaningless result. The optional `family` key on each
+scenario entry is how continuity is declared explicitly instead of assumed:
+
+- `family` is a short, free-form, kebab-case slug identifying the underlying
+  concept (e.g. `stagflation`, `soft-landing`, `ai-correction`). It is not an
+  enum — coin new slugs as new concepts appear.
+- At session time (Step 3 / Step 6), check the `family` slugs used in recent
+  deep sessions before writing this session's scenarios. Reuse a slug when a
+  scenario is a re-weighting of the same underlying concept from a prior
+  session; coin a new slug when the scenario is genuinely a new concept.
+  Never force a new concept into an old family just to preserve a chart line —
+  that fabricates continuity that isn't real.
+  Never repurpose an existing family for a different concept.
+- `family` is optional per scenario — a scenario with no plausible precedent
+  can omit it, and it renders standalone rather than fabricating a match.
+- Like all keys, this is append-only: old logs without `family` remain valid
+  and still parse/render, just without continuity lines for that session.
 
 ---
 
@@ -182,6 +208,10 @@ Present **3 plausible macro scenarios** given the current environment. For each:
 
 Format each scenario clearly with headers. Be honest when scenarios overlap or
 when history gives mixed signals.
+
+Before logging (Step 6), assign each scenario a `family` slug per the
+"Scenario families" rules above — check recent deep sessions in `sessions/`
+for slugs to reuse before coining a new one.
 
 ### Step 4 — Key Principles for This Environment
 Draw out **3–5 timeless investing principles** that are especially relevant right

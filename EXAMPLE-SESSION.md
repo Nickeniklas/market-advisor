@@ -16,10 +16,13 @@ eurusd: 1.09
 backfilled: false
 scenarios:
   - name: Soft landing
+    family: soft-landing
     probability: 35
   - name: Stagflation
+    family: stagflation
     probability: 40
   - name: Hard landing
+    family: hard-landing
     probability: 25
 tags:
   - market-session

@@ -6,6 +6,68 @@ your portfolio or market-session history, which live in git-ignored files under
 
 ---
 
+## 2026-07-17 — Scenario families: fix fabricated continuity in the scenario-drift chart
+
+Scenarios are generated fresh each deep session and may be entirely new
+concepts, but the scenario-drift chart stacked-area rendering assumed name
+continuity across sessions — "Stagflation" in one session was silently
+treated as the same thing as "Stagflation" in the next, producing a
+misleading wedge chart with a growing legend as scenario names drifted over
+time.
+
+- Added an optional `family` key to each scenario entry in the frontmatter
+  schema (`CLAUDE.md`) — a short, free-form, kebab-case slug identifying the
+  underlying concept, distinct from the human-readable `name`. Not an enum;
+  new concepts get new slugs. Documented the session-time rule: check recent
+  deep sessions' families before writing new scenarios, reuse a slug for a
+  re-weighting of the same concept, coin a new one for a genuinely new idea,
+  and never force a new concept into an old family. `family` is fully
+  optional and append-only — logs written before this key existed still
+  parse and render, just without continuity ribbons for their scenarios.
+- Replaced the stacked-area scenario chart in `tools/dashboard.template.html`
+  with per-deep-session stacked columns (segments = that session's
+  scenarios) connected by thin continuity ribbons — drawn **only** between
+  adjacent deep sessions whose segments share an explicit `family`. No
+  shared family means no ribbon, so the chart can no longer claim a
+  continuity the log didn't declare. Colors are assigned per family from the
+  existing palette in first-appearance order; unfamilied scenarios fall back
+  to the prior substring heuristic (soft/stagfl/hard) with their own
+  independent color cursor offset past the family slots, so the two don't
+  coincidentally collide on a shared chart. The legend lists families plus
+  standalone names for unfamilied scenarios; raw scenario name and
+  probability remain in tooltips. Also fixed x-axis label collisions:
+  MM-DD labels escalate to the full date if two deep sessions share a
+  month/day, and to the log's filename if they also share the full date
+  (e.g. two deep sessions logged the same day). The hollow-marker convention
+  for `backfilled` sessions is unchanged.
+- `tools/build_dashboard.py`: confirmed the existing frontmatter parser
+  already passes arbitrary extra keys through scenario mappings unchanged
+  (no parser change needed for `family` itself). Added a build-time warning
+  that flags pairs of `family` slugs that look like probable drift — one a
+  prefix of the other, or differing only by a suffix like `-2` or `-trap` —
+  so slug fragmentation surfaces immediately instead of silently splitting
+  a concept's continuity across two colors.
+- Added `family` slugs to `demo/sessions/*.md`'s scenarios (three recurring
+  families: `soft-landing`, `stagflation`, `hard-landing`), with one
+  deliberately unfamilied one-off scenario ("Liquidity shock" in the
+  2026-06-08 log, replacing that session's "Hard landing") so the demo
+  exercises both the continuity ribbons and the standalone fallback
+  rendering. Rebuilt `demo/dashboard.html`.
+- Verified against a synthetic sessions directory (not committed) covering:
+  recurring families re-weighted across sessions, a one-off unfamilied
+  scenario, two deep sessions logged on the same date, an old-schema log
+  with no `family` key at all, and a probable-drift slug pair — confirmed
+  correct ribbon placement (including that a family gap and a drift-suffix
+  mismatch both correctly produce *no* ribbon rather than a fabricated one),
+  correct label de-duplication, and that the build-time drift warning fires.
+
+**Net effect:** the scenario-drift chart only ever shows continuity that was
+explicitly declared in the logs, not continuity fabricated from a name
+match — old logs keep rendering unchanged, and slug drift gets caught at
+build time instead of silently fragmenting the chart.
+
+---
+
 ## 2026-07-11 — Committed demo dashboard (synthetic data)
 
 There was no way to see the dashboard's output without setting up

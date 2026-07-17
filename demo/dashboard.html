@@ -106,8 +106,10 @@
 
   <section>
     <h2>Scenario drift</h2>
-    <p class="sub">How the three scenario probabilities from each deep session have shifted over time.
-       Stacked to 100%. Hollow markers are backfilled sessions — values reconstructed from prose, read with care.</p>
+    <p class="sub">One column per deep session; segments are that session's scenarios, stacked to 100%.
+       A thin ribbon connects two segments only when both declare the same scenario <code>family</code>
+       in adjacent deep sessions — no shared family means no ribbon, and no claimed continuity.
+       Hollow markers are backfilled sessions — values reconstructed from prose, read with care.</p>
     <div class="panel">
       <div id="scenarioChart"></div>
       <div class="legend" id="scenarioLegend"></div>
@@ -138,7 +140,7 @@
 </div>
 
 <script>
-const DATA = {"generated": "2026-07-11", "sessions": [{"date": "2026-04-10", "mode": "deep", "fed_rate_upper": 5.0, "ecb_deposit_rate": 2.5, "home_policy_rate": null, "us_cpi_yoy": 3.2, "eu_cpi_yoy": 2.5, "home_cpi_yoy": null, "sp500": 5310, "stoxx600": 486, "home_index": 10650, "ust_10y": 4.7, "bund_10y": 2.65, "eurusd": 1.08, "backfilled": true, "scenarios": [{"name": "Soft landing", "probability": 30}, {"name": "Stagflation", "probability": 45}, {"name": "Hard landing", "probability": 25}], "tags": ["market-session", "deep"], "_file": "2026-04-10.md"}, {"date": "2026-05-08", "mode": "deep", "fed_rate_upper": 5.0, "ecb_deposit_rate": 2.25, "home_policy_rate": null, "us_cpi_yoy": 3.1, "eu_cpi_yoy": 2.4, "home_cpi_yoy": 2.1, "sp500": 5400, "stoxx600": 490, "home_index": 10800, "ust_10y": 4.62, "bund_10y": 2.71, "eurusd": 1.09, "backfilled": false, "scenarios": [{"name": "Soft landing", "probability": 35}, {"name": "Stagflation", "probability": 40}, {"name": "Hard landing", "probability": 25}], "tags": ["market-session", "deep"], "_file": "2026-05-08.md"}, {"date": "2026-05-22", "mode": "pulse", "fed_rate_upper": 5.0, "ecb_deposit_rate": 2.25, "home_policy_rate": null, "us_cpi_yoy": 3.1, "eu_cpi_yoy": 2.4, "home_cpi_yoy": 2.1, "sp500": 5455, "stoxx600": 494, "home_index": 10870, "ust_10y": 4.55, "bund_10y": 2.68, "eurusd": 1.1, "backfilled": false, "material_change": false, "deep_session_recommended": false, "tags": ["market-session", "pulse"], "_file": "2026-05-22-pulse.md"}, {"date": "2026-06-05", "mode": "pulse", "fed_rate_upper": 5.0, "ecb_deposit_rate": 2.25, "home_policy_rate": null, "us_cpi_yoy": 3.4, "eu_cpi_yoy": 2.6, "home_cpi_yoy": 2.3, "sp500": 5320, "stoxx600": 485, "home_index": 10700, "ust_10y": 4.78, "bund_10y": 2.8, "eurusd": 1.07, "backfilled": false, "material_change": true, "deep_session_recommended": true, "tags": ["market-session", "pulse"], "_file": "2026-06-05-pulse.md"}, {"date": "2026-06-08", "mode": "deep", "fed_rate_upper": 5.0, "ecb_deposit_rate": 2.25, "home_policy_rate": null, "us_cpi_yoy": 3.4, "eu_cpi_yoy": 2.6, "home_cpi_yoy": 2.3, "sp500": 5290, "stoxx600": 482, "home_index": 10640, "ust_10y": 4.82, "bund_10y": 2.83, "eurusd": 1.07, "backfilled": false, "scenarios": [{"name": "Soft landing", "probability": 25}, {"name": "Stagflation", "probability": 50}, {"name": "Hard landing", "probability": 25}], "tags": ["market-session", "deep"], "_file": "2026-06-08.md"}, {"date": "2026-07-03", "mode": "pulse", "fed_rate_upper": 4.75, "ecb_deposit_rate": 2.25, "home_policy_rate": null, "us_cpi_yoy": 3.3, "eu_cpi_yoy": 2.5, "home_cpi_yoy": 2.2, "sp500": 5480, "stoxx600": 495, "home_index": 10920, "ust_10y": 4.5, "bund_10y": 2.74, "eurusd": 1.11, "backfilled": false, "material_change": true, "deep_session_recommended": false, "tags": ["market-session", "pulse"], "_file": "2026-07-03-pulse.md"}, {"date": "2026-07-10", "mode": "deep", "fed_rate_upper": 4.75, "ecb_deposit_rate": 2.25, "home_policy_rate": null, "us_cpi_yoy": 3.3, "eu_cpi_yoy": 2.5, "home_cpi_yoy": 2.2, "sp500": 5510, "stoxx600": 497, "home_index": 10980, "ust_10y": 4.44, "bund_10y": 2.7, "eurusd": 1.11, "backfilled": false, "scenarios": [{"name": "Soft landing", "probability": 40}, {"name": "Stagflation", "probability": 40}, {"name": "Hard landing", "probability": 20}], "tags": ["market-session", "deep"], "_file": "2026-07-10.md"}]};
+const DATA = {"generated": "2026-07-17", "sessions": [{"date": "2026-04-10", "mode": "deep", "fed_rate_upper": 5.0, "ecb_deposit_rate": 2.5, "home_policy_rate": null, "us_cpi_yoy": 3.2, "eu_cpi_yoy": 2.5, "home_cpi_yoy": null, "sp500": 5310, "stoxx600": 486, "home_index": 10650, "ust_10y": 4.7, "bund_10y": 2.65, "eurusd": 1.08, "backfilled": true, "scenarios": [{"name": "Soft landing", "family": "soft-landing", "probability": 30}, {"name": "Stagflation", "family": "stagflation", "probability": 45}, {"name": "Hard landing", "family": "hard-landing", "probability": 25}], "tags": ["market-session", "deep"], "_file": "2026-04-10.md"}, {"date": "2026-05-08", "mode": "deep", "fed_rate_upper": 5.0, "ecb_deposit_rate": 2.25, "home_policy_rate": null, "us_cpi_yoy": 3.1, "eu_cpi_yoy": 2.4, "home_cpi_yoy": 2.1, "sp500": 5400, "stoxx600": 490, "home_index": 10800, "ust_10y": 4.62, "bund_10y": 2.71, "eurusd": 1.09, "backfilled": false, "scenarios": [{"name": "Soft landing", "family": "soft-landing", "probability": 35}, {"name": "Stagflation", "family": "stagflation", "probability": 40}, {"name": "Hard landing", "family": "hard-landing", "probability": 25}], "tags": ["market-session", "deep"], "_file": "2026-05-08.md"}, {"date": "2026-05-22", "mode": "pulse", "fed_rate_upper": 5.0, "ecb_deposit_rate": 2.25, "home_policy_rate": null, "us_cpi_yoy": 3.1, "eu_cpi_yoy": 2.4, "home_cpi_yoy": 2.1, "sp500": 5455, "stoxx600": 494, "home_index": 10870, "ust_10y": 4.55, "bund_10y": 2.68, "eurusd": 1.1, "backfilled": false, "material_change": false, "deep_session_recommended": false, "tags": ["market-session", "pulse"], "_file": "2026-05-22-pulse.md"}, {"date": "2026-06-05", "mode": "pulse", "fed_rate_upper": 5.0, "ecb_deposit_rate": 2.25, "home_policy_rate": null, "us_cpi_yoy": 3.4, "eu_cpi_yoy": 2.6, "home_cpi_yoy": 2.3, "sp500": 5320, "stoxx600": 485, "home_index": 10700, "ust_10y": 4.78, "bund_10y": 2.8, "eurusd": 1.07, "backfilled": false, "material_change": true, "deep_session_recommended": true, "tags": ["market-session", "pulse"], "_file": "2026-06-05-pulse.md"}, {"date": "2026-06-08", "mode": "deep", "fed_rate_upper": 5.0, "ecb_deposit_rate": 2.25, "home_policy_rate": null, "us_cpi_yoy": 3.4, "eu_cpi_yoy": 2.6, "home_cpi_yoy": 2.3, "sp500": 5290, "stoxx600": 482, "home_index": 10640, "ust_10y": 4.82, "bund_10y": 2.83, "eurusd": 1.07, "backfilled": false, "scenarios": [{"name": "Soft landing", "family": "soft-landing", "probability": 25}, {"name": "Stagflation", "family": "stagflation", "probability": 50}, {"name": "Liquidity shock", "probability": 25}], "tags": ["market-session", "deep"], "_file": "2026-06-08.md"}, {"date": "2026-07-03", "mode": "pulse", "fed_rate_upper": 4.75, "ecb_deposit_rate": 2.25, "home_policy_rate": null, "us_cpi_yoy": 3.3, "eu_cpi_yoy": 2.5, "home_cpi_yoy": 2.2, "sp500": 5480, "stoxx600": 495, "home_index": 10920, "ust_10y": 4.5, "bund_10y": 2.74, "eurusd": 1.11, "backfilled": false, "material_change": true, "deep_session_recommended": false, "tags": ["market-session", "pulse"], "_file": "2026-07-03-pulse.md"}, {"date": "2026-07-10", "mode": "deep", "fed_rate_upper": 4.75, "ecb_deposit_rate": 2.25, "home_policy_rate": null, "us_cpi_yoy": 3.3, "eu_cpi_yoy": 2.5, "home_cpi_yoy": 2.2, "sp500": 5510, "stoxx600": 497, "home_index": 10980, "ust_10y": 4.44, "bund_10y": 2.7, "eurusd": 1.11, "backfilled": false, "scenarios": [{"name": "Soft landing", "family": "soft-landing", "probability": 40}, {"name": "Stagflation", "family": "stagflation", "probability": 40}, {"name": "Hard landing", "family": "hard-landing", "probability": 20}], "tags": ["market-session", "deep"], "_file": "2026-07-10.md"}]};
 
 /* Edit these if you want your local names shown (kept generic so the repo
    template stays shareable — e.g. "Home index" -> "OMX Helsinki"). */
@@ -190,72 +192,123 @@ const fmt = (v,dec) => v==null ? "—" : Number(v).toLocaleString("en-US",{minim
     "This file contains personal data — it is git-ignored; keep it local.";
 })();
 
-/* ---------- scenario drift band ---------- */
+/* ---------- scenario drift: per-session stacked columns + continuity ribbons ----------
+   Scenarios are generated fresh each deep session and may be entirely new concepts, so
+   continuity across sessions is never assumed from a matching name — only from a shared,
+   explicitly-authored `family` slug (see CLAUDE.md "Scenario families"). No shared family
+   between adjacent deep sessions means no ribbon is drawn. */
 (function(){
   const el = document.getElementById("scenarioChart");
   const deeps = S.filter(s => s.mode==="deep" && Array.isArray(s.scenarios) && s.scenarios.length);
   if (!deeps.length){
     el.innerHTML = "<p class='sub'>No deep sessions with scenarios yet — run a deep session and rebuild.</p>";
+    document.getElementById("scenarioLegend").innerHTML = "";
     return;
   }
-  // union of scenario names in order of first appearance
-  const names = [];
-  deeps.forEach(s => s.scenarios.forEach(sc => { if (sc.name && !names.includes(sc.name)) names.push(sc.name); }));
-  // per-session normalized shares
-  const shares = deeps.map(s => {
-    const map = {}; let tot = 0;
-    s.scenarios.forEach(sc => { if (typeof sc.probability==="number"){ map[sc.name]=sc.probability; tot+=sc.probability; }});
-    names.forEach(n => map[n] = tot>0 ? (map[n]||0)/tot : 0);
-    return map;
-  });
 
-  const W=960,H=280,mL=44,mR=14,mT=12,mB=34;
+  // colors: families get the palette in first-appearance order; unfamilied scenarios
+  // fall back to the substring heuristic (with their own independent fallback cursor)
+  const familyColor = {}, familyOrder = [];
+  deeps.forEach(s => s.scenarios.forEach(sc => {
+    if (sc && sc.family && !(sc.family in familyColor)){
+      familyColor[sc.family] = SC_COLORS[familyOrder.length % SC_COLORS.length];
+      familyOrder.push(sc.family);
+    }
+  }));
+  const standaloneColor = {}, standaloneNames = [];
+  // start the fallback cursor after the family slots already claimed, so an
+  // unfamilied scenario doesn't coincidentally repaint the same color as an
+  // unrelated family shown on the same chart
+  let standaloneFallback = familyOrder.length;
+  deeps.forEach(s => s.scenarios.forEach(sc => {
+    if (sc && !sc.family && sc.name && !(sc.name in standaloneColor)){
+      standaloneColor[sc.name] = scenarioColor(sc.name, standaloneFallback++);
+      standaloneNames.push(sc.name);
+    }
+  }));
+  const segColor = sc => sc.family ? familyColor[sc.family] : (standaloneColor[sc.name] || scenarioColor(sc.name, 0));
+
+  // x labels: MM-DD by default; escalate to full date if MM-DD collides, then to the
+  // log filename if two deep sessions share the same full date (e.g. two logs same day)
+  const mmddDupe = new Set(deeps.map(s=>s.date.slice(5))).size !== deeps.length;
+  const fullDupe = new Set(deeps.map(s=>s.date)).size !== deeps.length;
+  const xLabel = deeps.map(s => fullDupe ? s._file.replace(/\.md$/i,"") : (mmddDupe ? s.date : s.date.slice(5)));
+
+  const W=960,H=300,mL=44,mR=14,mT=20,mB=42,GAP=2;
   const iw=W-mL-mR, ih=H-mT-mB, n=deeps.length;
-  const x = i => n===1 ? mL+iw/2 : mL + iw*i/(n-1);
+  const bw = Math.max(16, Math.min(64, iw/n*0.55));
+  const x = i => mL + iw*(i+0.5)/n;
   const y = f => mT + ih*(1-f);
 
-  let svg = `<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="Stacked scenario probabilities over deep sessions" style="display:block">`;
-  // y gridlines at 0/25/50/75/100
+  function roundedTopRect(x0,y0,w,h,r,fill,title){
+    r = Math.max(0, Math.min(r, w/2, h));
+    if (r<=0) return `<rect x="${x0.toFixed(1)}" y="${y0.toFixed(1)}" width="${w.toFixed(1)}" height="${h.toFixed(1)}" fill="${fill}"><title>${title}</title></rect>`;
+    const d = `M${x0.toFixed(1)},${(y0+h).toFixed(1)} L${x0.toFixed(1)},${(y0+r).toFixed(1)} `+
+      `Q${x0.toFixed(1)},${y0.toFixed(1)} ${(x0+r).toFixed(1)},${y0.toFixed(1)} L${(x0+w-r).toFixed(1)},${y0.toFixed(1)} `+
+      `Q${(x0+w).toFixed(1)},${y0.toFixed(1)} ${(x0+w).toFixed(1)},${(y0+r).toFixed(1)} L${(x0+w).toFixed(1)},${(y0+h).toFixed(1)} Z`;
+    return `<path d="${d}" fill="${fill}"><title>${title}</title></path>`;
+  }
+
+  // per-column stacked segment geometry, in the order scenarios were authored
+  const columns = deeps.map(s => {
+    const scs = s.scenarios.filter(sc => sc && typeof sc.probability==="number" && sc.probability>0);
+    const total = scs.reduce((a,sc)=>a+sc.probability,0) || 1;
+    let acc = 0;
+    return scs.map((sc,si) => {
+      const f0=acc, f1=acc+sc.probability/total; acc=f1;
+      const isTop = si===scs.length-1, isBottom = si===0;
+      return {
+        name: sc.name, family: sc.family||null, color: segColor(sc), probability: sc.probability,
+        isTop, isBottom,
+        yTop: y(f1) + (isTop?0:GAP/2),
+        yBot: y(f0) - (isBottom?0:GAP/2),
+      };
+    });
+  });
+
+  let svg = `<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="Scenario probabilities per deep session, stacked to 100 percent, with continuity ribbons only between sessions that declare a shared scenario family" style="display:block">`;
   for (const p of [0,.25,.5,.75,1]){
     svg += `<line x1="${mL}" y1="${y(p)}" x2="${W-mR}" y2="${y(p)}" stroke="var(--rule-soft)" stroke-width="1"/>` +
            `<text x="${mL-8}" y="${y(p)+4}" text-anchor="end" font-family="var(--mono)" font-size="11" fill="var(--muted)">${p*100}</text>`;
   }
-  if (n===1){
-    // single deep session: one stacked column
-    let acc=0; const bw=Math.min(120,iw*0.3);
-    names.forEach((nm,i)=>{
-      const f=shares[0][nm]; if(!f) return;
-      const y1=y(acc+f), h=y(acc)-y(acc+f);
-      svg += `<rect x="${x(0)-bw/2}" y="${y1}" width="${bw}" height="${h}" fill="${scenarioColor(nm,i)}" opacity="0.85"><title>${esc(nm)} ${Math.round(f*100)}%</title></rect>`;
-      acc+=f;
-    });
-  } else {
-    // stacked areas
-    const cum = shares.map(m => { let a=0; const row={}; names.forEach(nm=>{ a+=m[nm]; row[nm]=a; }); return row; });
-    names.forEach((nm,i)=>{
-      let top="",bot="";
-      for (let k=0;k<n;k++){ top += `${k?"L":"M"}${x(k).toFixed(1)},${y(cum[k][nm]).toFixed(1)} `; }
-      for (let k=n-1;k>=0;k--){ const prev = i===0?0:cum[k][names[i-1]]; bot += `L${x(k).toFixed(1)},${y(prev).toFixed(1)} `; }
-      svg += `<path d="${top}${bot}Z" fill="${scenarioColor(nm,i)}" opacity="0.82"><title>${esc(nm)}</title></path>`;
-    });
-    // boundary lines for crispness
-    names.forEach((nm,i)=>{
-      let d=""; for (let k=0;k<n;k++) d += `${k?"L":"M"}${x(k).toFixed(1)},${y(cum[k][nm]).toFixed(1)} `;
-      svg += `<path d="${d}" fill="none" stroke="var(--paper)" stroke-width="1.5"/>`;
+
+  // continuity ribbons between adjacent deep sessions only, drawn behind the columns
+  for (let k=0;k<n-1;k++){
+    columns[k].forEach(segA => {
+      if (!segA.family) return;
+      const segB = columns[k+1].find(sb => sb.family===segA.family);
+      if (!segB) return;
+      const xR=x(k)+bw/2, xL=x(k+1)-bw/2;
+      svg += `<path d="M${xR.toFixed(1)},${segA.yTop.toFixed(1)} L${xL.toFixed(1)},${segB.yTop.toFixed(1)} `+
+        `L${xL.toFixed(1)},${segB.yBot.toFixed(1)} L${xR.toFixed(1)},${segA.yBot.toFixed(1)} Z" `+
+        `fill="${segA.color}" opacity="0.16"><title>${esc(segA.family)}: ${esc(deeps[k].date)} ${Math.round(segA.probability)}% → ${esc(deeps[k+1].date)} ${Math.round(segB.probability)}%</title></path>`;
     });
   }
+
+  // stacked columns — rounded top on the outer segment, square baseline, 2px surface gaps
+  columns.forEach((segs,k) => {
+    const cx = x(k);
+    segs.forEach(seg => {
+      const h = seg.yBot - seg.yTop;
+      if (h<=0) return;
+      const title = `${esc(seg.name)}${seg.family?` [${esc(seg.family)}]`:""}: ${Math.round(seg.probability)}%`;
+      if (seg.isTop) svg += roundedTopRect(cx-bw/2, seg.yTop, bw, h, 4, seg.color, title);
+      else svg += `<rect x="${(cx-bw/2).toFixed(1)}" y="${seg.yTop.toFixed(1)}" width="${bw.toFixed(1)}" height="${h.toFixed(1)}" fill="${seg.color}"><title>${title}</title></rect>`;
+    });
+  });
+
   // x labels + per-session markers (hollow when backfilled)
   deeps.forEach((s,k)=>{
     const bf = s.backfilled===true;
-    svg += `<text x="${x(k)}" y="${H-10}" text-anchor="middle" font-family="var(--mono)" font-size="11" fill="var(--muted)">${esc(s.date.slice(5))}</text>`;
-    const tip = names.map((nm,i)=>`${nm}: ${Math.round(shares[k][nm]*100)}%`).join(" · ");
-    svg += `<circle cx="${x(k)}" cy="${mT+4}" r="4.5" fill="${bf?"var(--card)":"var(--ink)"}" stroke="var(--ink)" stroke-width="1.5"><title>${esc(s.date)} — ${esc(tip)}${bf?" (backfilled)":""}</title></circle>`;
+    svg += `<text x="${x(k).toFixed(1)}" y="${H-mB+22}" text-anchor="middle" font-family="var(--mono)" font-size="11" fill="var(--muted)">${esc(xLabel[k])}</text>`;
+    svg += `<circle cx="${x(k).toFixed(1)}" cy="${(mT-8).toFixed(1)}" r="4.5" fill="${bf?"var(--card)":"var(--ink)"}" stroke="var(--ink)" stroke-width="1.5"><title>${esc(s.date)}${bf?" (backfilled)":""}</title></circle>`;
   });
   svg += `</svg>`;
   el.innerHTML = svg;
 
-  document.getElementById("scenarioLegend").innerHTML = names.map((nm,i)=>
-    `<span><i class="swatch" style="background:${scenarioColor(nm,i)}"></i>${esc(nm)}</span>`).join("") +
+  document.getElementById("scenarioLegend").innerHTML =
+    familyOrder.map(fam => `<span><i class="swatch" style="background:${familyColor[fam]}"></i>${esc(fam)}</span>`).join("") +
+    standaloneNames.map(nm => `<span><i class="swatch" style="background:${standaloneColor[nm]}"></i>${esc(nm)}</span>`).join("") +
     `<span><i class="swatch" style="background:var(--card);border:1.5px solid var(--ink);border-radius:99px"></i>backfilled</span>`;
 })();
 

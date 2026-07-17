@@ -108,6 +108,50 @@ def parse_frontmatter(text: str, source: str):
     return data
 
 
+# Suffixes that commonly mark a re-weighted copy of an existing family rather
+# than a genuinely new concept (e.g. "stagflation-2", "soft-landing-v2").
+_DRIFT_SUFFIX = re.compile(r"-(\d+|v\d+|trap|bis|alt|redux|old|new)$")
+
+
+def _strip_drift_suffix(slug: str):
+    stripped = _DRIFT_SUFFIX.sub("", slug)
+    return stripped if stripped != slug else None
+
+
+def find_family_drift_warnings(sessions: list) -> list:
+    """Flag pairs of family slugs that look like accidental drift on the same
+    concept (one is a '-suffix' extension of the other) rather than genuinely
+    distinct ideas, so it gets caught at build time instead of silently
+    fragmenting the scenario-drift chart's continuity ribbons."""
+    slugs = []
+    for s in sessions:
+        if s.get("mode") != "deep":
+            continue
+        for sc in s.get("scenarios", []):
+            if isinstance(sc, dict):
+                fam = sc.get("family")
+                if fam and fam not in slugs:
+                    slugs.append(fam)
+
+    warnings = []
+    for i, a in enumerate(slugs):
+        for b in slugs[i + 1:]:
+            reason = None
+            if a.startswith(b + "-") or b.startswith(a + "-"):
+                reason = "one is a prefix of the other"
+            else:
+                sa, sb = _strip_drift_suffix(a), _strip_drift_suffix(b)
+                base_a, base_b = sa or a, sb or b
+                if (sa or sb) and base_a == base_b:
+                    reason = "differ only by a suffix"
+            if reason:
+                warnings.append(
+                    f"possible scenario family drift: '{a}' vs '{b}' ({reason}) "
+                    f"— reuse one slug for the same concept, or confirm they're genuinely distinct"
+                )
+    return warnings
+
+
 def validate(session: dict, source: str, warnings: list):
     for key in SHARED_KEYS:
         if key not in session:
@@ -166,6 +210,7 @@ def main():
         sessions.append(validate(fm, p.name, warnings))
 
     sessions.sort(key=lambda s: (s["date"], s["_file"]))
+    warnings.extend(find_family_drift_warnings(sessions))
 
     payload = {
         "generated": date.today().isoformat(),
