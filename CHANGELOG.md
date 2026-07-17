@@ -6,6 +6,34 @@ your portfolio or market-session history, which live in git-ignored files under
 
 ---
 
+## 2026-07-17 — Backfilled `family` slugs into real session logs
+
+Retroactively added the `family` key (introduced same-day, see entry below) to
+every scenario in the six pre-existing deep-mode logs in `sessions/`
+(2026-04-10, 2026-04-13, 2026-04-13b, 2026-06-11, 2026-06-18, 2026-07-16) —
+including logs marked `backfilled: false`. Those logs' numeric frontmatter was
+captured live; only the new `family` keys are inferred after the fact from the
+prose. Pulse logs have no `scenarios` key and needed no changes.
+
+- Five families emerged across the six logs: `stagflation`, `soft-landing`,
+  and `hard-landing` (spellings matched to the existing `demo/sessions/*.md`
+  convention), plus `ai-correction` (matched to the example slug named in
+  CLAUDE.md's own "Scenario families" section) and one standalone one-off,
+  `higher-for-longer`.
+- Notable judgment calls: `hard-landing` (April sessions) was not force-matched
+  to the later AI-valuation-correction scenarios (`ai-correction`, first seen
+  2026-06-11) — different mechanism (broad oil/tariff-driven recession vs. a
+  positioning/valuation unwind concentrated in AI/semiconductor names).
+  "Higher-for-Longer Soft Landing" (2026-06-18) was kept standalone rather than
+  folded into `soft-landing` despite the name, since that session presents it
+  as a distinct third scenario from "Relief Rally / Disinflation Resumes" with
+  different rate and portfolio implications.
+- Rebuilt the local `dashboard.html`; confirmed `python3 tools/build_dashboard.py`
+  runs clean with no slug-drift warning, and the scenario-drift chart now
+  renders 12 continuity ribbons across the five deep-session gaps.
+
+---
+
 ## 2026-07-17 — Scenario families: fix fabricated continuity in the scenario-drift chart
 
 Scenarios are generated fresh each deep session and may be entirely new
