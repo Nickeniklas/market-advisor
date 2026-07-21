@@ -6,6 +6,99 @@ your portfolio or market-session history, which live in git-ignored files under
 
 ---
 
+## 2026-07-21 — Deep sessions now review the previous one: scenario scoring, falsifiers, exposure maps
+
+Deep sessions previously started from a blank slate each time — new scenarios
+were generated with no reference to what the last session predicted, so
+nothing ever got scored against reality, probability moves were unexplained,
+and open questions were asked once and forgotten. This closes that loop.
+
+- Added **Step 2.5 — Review the Previous Deep Session** to `CLAUDE.md`,
+  running right after personal context is read and before new scenarios are
+  drafted. It scores every scenario from the most recent deep-mode log
+  (supported / contradicted / neutral, with evidence from Step 1), checks any
+  declared falsifiers off as fired / not fired, and answers that session's
+  open questions. Pulse logs are skipped for this step since they carry no
+  scenarios. The first-ever deep session states there's nothing to review and
+  proceeds with standalone probabilities.
+- **Step 3** now requires: probabilities expressed as a delta from the
+  previous session where the scenario's `family` recurs, with the reason for
+  the move stated (not just the new number); a **falsifiers** subsection per
+  scenario — 1–2 concrete, mechanically checkable observables, not vague
+  ones; and an **exposure map** replacing the old generic "connect it to the
+  portfolio" line — a table naming actual `portfolio.md` positions and their
+  direction of exposure, not general diversification statements.
+- **Step 1** now requires every macro data point to carry its as-of date or
+  reference period, and to flag when the latest available print is older
+  than the normal release cadence would suggest.
+- **Step 6** log template gets a new `## Scenario Review (vs YYYY-MM-DD)`
+  section between the Macro Snapshot and Scenarios Covered, capturing Step
+  2.5's output; the Scenarios Covered section now shows `previous → current`
+  probabilities where a family recurs.
+- Added an optional `falsifiers` key to the scenario frontmatter schema (a
+  plain-string list per scenario, append-only like all keys). This is a
+  genuinely nested structure — a list inside a mapping inside a list — which
+  `tools/build_dashboard.py`'s hand-rolled `parse_frontmatter` did not
+  support; feeding it a `falsifiers:` block would have silently corrupted
+  the parsed `scenarios` list (each falsifier string landing as a bogus
+  top-level scenario entry) rather than erroring. **Judgment call:** the
+  parser's own docstring says to switch to `pyyaml` if the schema ever grows
+  genuinely nested structures, but that would add the project's first
+  runtime dependency for one small, optional key. Instead extended
+  `parse_frontmatter` minimally — one additional nested-list branch, still
+  zero-dependency — to correctly capture `falsifiers` as a list on its
+  scenario and leave everything else unaffected. Verified against a
+  synthetic multi-scenario log with a nested `falsifiers` list plus the
+  existing `tags` scalar list and scenario dedent-back cases; also confirmed
+  `python3 tools/build_dashboard.py --sessions-dir demo/sessions --output
+  demo/dashboard.html` still builds clean with no new warnings. The
+  dashboard itself doesn't render `falsifiers` yet — pulse sessions read the
+  latest deep log's source file directly for that, not through the
+  dashboard build.
+- **MODE: weekly-pulse**: step 2 now explicitly reads the latest deep-mode
+  log directly for the scenario baseline (probabilities, families,
+  falsifiers) rather than relying on a pulse's prose recollection of it, and
+  a fired falsifier from that log is added to the "material" checklist —
+  it's automatically material and normally sets
+  `deep_session_recommended: true`.
+- `run.md`: removed the manual `Today's date: [YYYY-MM-DD] ← update this
+  before running` line from the session-start prompt — Claude Code already
+  knows the current date, and the manual step was a stale-date footgun.
+- Added a `falsifiers` entry to the `demo/sessions/2026-07-10.md` Stagflation
+  scenario and rebuilt `demo/dashboard.html`, so the demo exercises the new
+  key end-to-end (parse → build → still-clean dashboard).
+- Updated `README.md`: "What Each Session Produces" now lists the Scenario
+  Review step and the delta/falsifiers/exposure-map scenario format; the
+  "Machine-Readable Session Logs" section documents the `falsifiers` key and
+  the minimal parser extension that supports it.
+- Updated `EXAMPLE-SESSION.md` to match: added scenario-consistent
+  `falsifiers` (2 per scenario, in both frontmatter and prose) and an honest
+  placeholder line in place of a real exposure map (the example's
+  `portfolio.md` was never filled in, so no real holdings exist to map).
+  Deliberately did **not** add a Scenario Review section — the example
+  depicts a first-ever deep session with no prior log to review against —
+  and added a blockquote note explaining that absence so it doesn't read as
+  a forgotten section. Confirmed the updated frontmatter still parses via
+  `parse_frontmatter`.
+- Verified the `falsifiers` parser extension end-to-end rather than trusting
+  a clean exit code: (1) parsed a temporary synthetic log (not committed)
+  with a `falsifiers`-bearing scenario followed by a second scenario, and
+  confirmed the printed dict had falsifiers nested only inside the first
+  scenario, with the second scenario intact and no stray top-level items in
+  `scenarios`; (2) grepped the rebuilt `demo/dashboard.html` for the literal
+  falsifier strings added to `demo/sessions/2026-07-10.md` and confirmed
+  both are present in the embedded JSON, proving the key survives the real
+  build and isn't silently dropped by the (by-design) dashboard-side
+  ignoring of the key.
+
+**Net effect:** deep sessions now hold themselves accountable to their own
+prior predictions instead of restarting cold each time, scenario
+probabilities carry an explained trajectory instead of appearing from
+nowhere, and pulses can mechanically detect when a named risk has actually
+fired — all without adding a dependency to the build script.
+
+---
+
 ## 2026-07-17 — Backfilled `family` slugs into real session logs
 
 Retroactively added the `family` key (introduced same-day, see entry below) to

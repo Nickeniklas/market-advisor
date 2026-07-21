@@ -78,6 +78,9 @@ scenarios:                # deep mode only — omit the key entirely in pulse mo
   - name: Stagflation
     family: stagflation
     probability: 40
+    falsifiers:                # optional — plain strings, checkable observables
+      - third consecutive hot US CPI print
+      - unemployment claims break their 2026 range
   - name: Hard landing
     family: hard-landing
     probability: 25
@@ -102,6 +105,14 @@ tags:
   `false`. It is `true` only on logs where the frontmatter was added
   retroactively by parsing the prose — treat those values as inferred, and
   check the prose body if one looks doubtful.
+- `falsifiers` is an optional per-scenario list of short plain-string
+  observables (append-only, like all keys). Parsing it requires one level of
+  list nesting inside a scenario mapping — `tools/build_dashboard.py`'s
+  hand-rolled parser was extended minimally to support exactly that nesting
+  (still zero-dependency; unknown scenario keys still pass through
+  unchanged otherwise). The dashboard doesn't render this key yet — pulse
+  sessions check it by reading the source log directly, not through the
+  dashboard.
 
 **Scenario families:**
 
@@ -136,8 +147,10 @@ valuable output — do not invent significance to fill space.
 
 Steps:
 1. Read portfolio.md for current positions and the "What I'm Thinking About" section.
-2. Read the most recent file in sessions/ (pulse or deep) to recall the
-   scenarios and risks flagged last time.
+2. Read the most recent file in sessions/ (pulse or deep) for continuity,
+   AND the most recent deep-mode log. The scenario baseline — probabilities,
+   families, and falsifiers you compare against — always comes from the
+   latest deep log directly, never from a pulse's prose recollection of it.
 3. Fetch current macro data via web search: policy rates (Fed, ECB), latest
    inflation prints, major equity index levels, EUR/USD, and any notable
    risk events in the last week.
@@ -151,6 +164,9 @@ What counts as "material":
 - An inflation print that breaks the recent trend
 - A market move large enough to change a scenario's probability
 - News that directly touches a holding or a theme in portfolio.md
+- Any falsifier declared in the latest deep session firing. A fired
+  falsifier is automatically material and normally sets
+  deep_session_recommended: true.
 Day-to-day index wiggles, single-stock noise, and recycled headlines are NOT material.
 
 Pulse log format (keep it tight):
@@ -192,6 +208,12 @@ Use your web search tool to gather:
 - Current yield on 10Y US Treasury and German Bund (plus a local sovereign yield
   if relevant per `persona.md`)
 
+Every data point in the snapshot must carry its as-of date or reference
+period — e.g. "US CPI 3.3% YoY (June print, released Jul 15)", "S&P 500
+5,510 (close, Jul 18)". If the latest available print is older than the
+normal release cadence would suggest, flag it. A number without a date is
+not a snapshot entry.
+
 Summarize this as **"Today's Macro Snapshot"** — concise, factual, no opinions yet.
 
 ### Step 2 — Read Personal Context
@@ -199,12 +221,45 @@ Read `persona.md` and `portfolio.md` carefully. Note the user's location, tax
 wrappers, platform(s), current positions, cash level, and any stated constraints.
 Reference both throughout the analysis — make it personal, not generic.
 
+### Step 2.5 — Review the Previous Deep Session
+
+Read the most recent **deep-mode** log in `sessions/` (skip pulse logs for
+this step — they carry no scenarios). Before any new analysis:
+
+1. **Score each prior scenario.** For every scenario in that log's
+   frontmatter, state whether evidence since then has supported it,
+   contradicted it, or been neutral — citing the specific data points from
+   Step 1 that say so. "Nothing decisive either way" is a valid, honest score.
+2. **Check declared falsifiers.** If the prior session listed falsifiers per
+   scenario, go through each one explicitly: fired, not fired, or not yet
+   observable. Never skip one silently.
+3. **Answer the prior open questions.** Respond to that session's "Open
+   Questions" in 2–4 sentences each. "Still unresolved, and here's why" is a
+   legitimate answer; dropping a question without comment is not.
+
+This section's output is logged (see Step 6). If no deep session exists yet,
+state that and proceed to Step 3 with standalone probabilities.
+
 ### Step 3 — Scenario Analysis
 Present **3 plausible macro scenarios** given the current environment. For each:
 - Name and describe the scenario (e.g. "Stagflation: inflation stays sticky, growth slows")
-- Assign a rough probability (your educated estimate — explain your reasoning)
+- Express each probability relative to the previous deep session where the
+  family recurs: "Stagflation: 50% → 40%, because CPI cooled for a second
+  consecutive print" — the reason for the change is mandatory, not just the
+  new number. Scenarios with no prior-session counterpart get a standalone
+  estimate, stated as such.
 - Explain what historically happens to: equities, bonds, commodities, cash, real assets
-- Connect it to the user's specific situation from `portfolio.md`
+- **Falsifiers:** for each scenario, name 1–2 concrete, checkable observables
+  that would move its probability up or down before the next session (e.g.
+  "a third consecutive hot US CPI print", "IG credit spreads widen past
+  their 12-month high"). Vague falsifiers ("markets get worse") don't count —
+  the next pulse must be able to answer fired / not fired without judgment
+  calls. These go in the prose, and optionally in frontmatter (see the
+  "Session Log Frontmatter" section).
+- **Exposure map:** a short table mapping the actual holdings and cash from
+  `portfolio.md` to this scenario — which positions are most exposed, in
+  which direction, and why (one line each). Generic statements ("the
+  portfolio is diversified") are not acceptable; name the positions.
 
 Format each scenario clearly with headers. Be honest when scenarios overlap or
 when history gives mixed signals.
@@ -242,8 +297,14 @@ file with the YAML frontmatter per the "Session Log Frontmatter" section above
 ## Macro Snapshot
 [brief summary of what you found]
 
+## Scenario Review (vs YYYY-MM-DD)
+[Per Step 2.5: score of each prior scenario with evidence, falsifier check
+results, and answers to the prior session's open questions. If this is the
+first deep session, state that instead.]
+
 ## Scenarios Covered
-[list the 3 scenarios and your probability estimates]
+[list the 3 scenarios and your probability estimates, shown as
+`previous → current` where a family recurs with the previous session]
 
 ## Key Takeaways
 [3–5 bullet points of the most important educational points from this session]

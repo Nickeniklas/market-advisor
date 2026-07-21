@@ -18,12 +18,21 @@ scenarios:
   - name: Soft landing
     family: soft-landing
     probability: 35
+    falsifiers:
+      - a second consecutive hot core CPI print
+      - initial jobless claims break out of their recent multi-month range
   - name: Stagflation
     family: stagflation
     probability: 40
+    falsifiers:
+      - a third consecutive hot US CPI print
+      - GDP growth undershoots consensus for two straight quarters while inflation stays above target
   - name: Hard landing
     family: hard-landing
     probability: 25
+    falsifiers:
+      - investment-grade credit spreads widen past their 12-month high
+      - layoff announcements broaden beyond a single sector
 tags:
   - market-session
   - deep
@@ -41,6 +50,11 @@ tags:
 > numbers on purpose: the prose below is for you, the frontmatter is for tools —
 > Obsidian Dataview queries, a static HTML dashboard, or a future Streamlit app.
 > The example date above is intentionally generic sample data.
+>
+> This example depicts a **first-ever** deep session — no prior deep log
+> exists yet to review, so it has no "Scenario Review" section. `CLAUDE.md`
+> Step 2.5 adds that section starting with your second deep session; its
+> absence here is expected, not an omission.
 
 ---
 
@@ -64,6 +78,19 @@ tags:
 | Soft landing | 35% | Inflation gradually returns to 2%, no recession, equities grind higher |
 | Stagflation | 40% | Growth stalls but inflation stays sticky 3–4%; central banks trapped |
 | Hard landing / recession | 25% | Credit event or demand collapse forces rapid rate cuts; equities -25–40% |
+
+**Falsifiers to watch:**
+- **Soft landing:** a second consecutive hot core CPI print; initial jobless
+  claims break out of their recent multi-month range
+- **Stagflation:** a third consecutive hot US CPI print; GDP growth
+  undershoots consensus for two straight quarters while inflation stays
+  above target
+- **Hard landing:** investment-grade credit spreads widen past their
+  12-month high; layoff announcements broaden beyond a single sector
+
+**Exposure map:** *(Exposure map omitted — portfolio.md not yet populated. A
+real session maps each holding and cash position to each scenario here,
+naming the actual positions and their direction of exposure.)*
 
 ---
 

@@ -96,11 +96,19 @@ python3 tools/build_dashboard.py --sessions-dir demo/sessions --output demo/dash
 
 ## What Each Session Produces
 
-1. **Macro Snapshot** — current inflation, rates, equity levels, key risks
-2. **3 Scenarios** — plausible macro futures with probability estimates + what each means for your portfolio
-3. **Key Principles** — timeless concepts made relevant to right now
-4. **Open Questions** — hard questions to sit with before next session
-5. **Session Log** — saved automatically to `sessions/YYYY-MM-DD.md`, starting
+1. **Macro Snapshot** — current inflation, rates, equity levels, key risks,
+   each data point dated to its as-of print or reference period
+2. **Scenario Review** — the previous deep session's scenarios scored against
+   what actually happened since (supported / contradicted / neutral, with
+   evidence), its declared falsifiers checked fired / not fired, and its open
+   questions answered. Skipped (with a note) only on the first-ever deep session.
+3. **3 Scenarios** — plausible macro futures, each with a probability expressed
+   as a delta from the last session where the same `family` recurs (with the
+   reason for the change), 1–2 concrete falsifiers to watch, and an exposure
+   map naming the actual `portfolio.md` positions it affects
+4. **Key Principles** — timeless concepts made relevant to right now
+5. **Open Questions** — hard questions to sit with before next session
+6. **Session Log** — saved automatically to `sessions/YYYY-MM-DD.md`, starting
    with a machine-readable YAML frontmatter block (see below)
 
 ---
@@ -121,6 +129,16 @@ sessions apart from a genuinely new one. Scenarios are generated fresh each
 session and are never assumed to be the same concept just because the name
 matches — continuity is only ever declared explicitly via a shared `family`.
 See "Scenario families" in `CLAUDE.md` for the rules on reusing vs. coining slugs.
+
+Each scenario may also carry an optional `falsifiers` list — 1–2 short,
+concrete observables that would move that scenario's probability before the
+next session (see Step 3 in `CLAUDE.md`). Pulse sessions read the latest deep
+log directly and check each one off as fired / not fired; a fired falsifier
+is automatically material and normally recommends a deep session. The
+dashboard doesn't render this key yet, but it parses cleanly — the frontmatter
+schema now has one level of nesting (a scalar list inside a scenario mapping),
+and `parse_frontmatter` in `tools/build_dashboard.py` was extended minimally
+to support exactly that, still with zero dependencies.
 
 ### 1. Local HTML dashboard (built, primary)
 

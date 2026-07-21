@@ -56,16 +56,20 @@ def coerce_scalar(raw: str):
 def parse_frontmatter(text: str, source: str):
     """Parse the leading YAML frontmatter block of a session log.
 
-    Handles: flat `key: value` pairs, a `tags:` list of scalars, and a
-    `scenarios:` list of {name, probability} mappings. That is the entire
-    schema; anything else raises so bad logs are caught, not silently skipped.
+    Handles: flat `key: value` pairs, a `tags:` list of scalars, a
+    `scenarios:` list of {name, probability, ...} mappings, and one level of
+    nesting inside a scenario mapping — a scalar list such as `falsifiers:`.
+    That is the entire schema; anything else raises so bad logs are caught,
+    not silently skipped.
     """
     m = re.match(r"\A---\s*\n(.*?)\n---\s*(?:\n|\Z)", text, re.DOTALL)
     if not m:
         raise ValueError(f"{source}: no frontmatter block found")
 
     data: dict = {}
-    current_list_key = None       # 'tags' or 'scenarios' while inside a list
+    current_list_key = None       # 'tags' or 'scenarios' while inside a top-level list
+    nested_list_key = None        # e.g. 'falsifiers' while inside a scalar list on a scenario
+    nested_list_indent = None     # indent of that nested list's own '-' items
     lines = m.group(1).splitlines()
 
     for ln in lines:
@@ -75,10 +79,12 @@ def parse_frontmatter(text: str, source: str):
             continue
 
         indent = len(stripped) - len(stripped.lstrip())
+        item = stripped.strip()
 
         if indent == 0:
             current_list_key = None
-            key, _, rest = stripped.partition(":")
+            nested_list_key = None
+            key, _, rest = item.partition(":")
             key = key.strip()
             rest = rest.strip()
             if rest == "":
@@ -87,23 +93,38 @@ def parse_frontmatter(text: str, source: str):
                 current_list_key = key
             else:
                 data[key] = coerce_scalar(rest)
-        else:
-            if current_list_key is None:
-                raise ValueError(f"{source}: unexpected indented line: {ln!r}")
-            item = stripped.strip()
-            if not item.startswith("-"):
-                # continuation of a list-item mapping: `  probability: 35`
-                key, _, rest = item.partition(":")
-                if not data[current_list_key] or not isinstance(data[current_list_key][-1], dict):
-                    raise ValueError(f"{source}: stray mapping line: {ln!r}")
-                data[current_list_key][-1][key.strip()] = coerce_scalar(rest)
+            continue
+
+        if current_list_key is None:
+            raise ValueError(f"{source}: unexpected indented line: {ln!r}")
+
+        # A '-' line still inside an open nested list (e.g. falsifiers) belongs to it.
+        if nested_list_key is not None and item.startswith("-") and indent >= nested_list_indent:
+            data[current_list_key][-1][nested_list_key].append(coerce_scalar(item[1:].strip()))
+            continue
+        nested_list_key = None  # any other line dedents out of the nested list
+
+        if not item.startswith("-"):
+            # continuation of a list-item mapping: `  probability: 35`, or the
+            # start of a nested scalar list: `  falsifiers:`
+            key, _, rest = item.partition(":")
+            key = key.strip()
+            rest = rest.strip()
+            if not data[current_list_key] or not isinstance(data[current_list_key][-1], dict):
+                raise ValueError(f"{source}: stray mapping line: {ln!r}")
+            if rest == "":
+                data[current_list_key][-1][key] = []
+                nested_list_key = key
+                nested_list_indent = indent + 2
             else:
-                item = item[1:].strip()
-                if ":" in item:
-                    key, _, rest = item.partition(":")
-                    data[current_list_key].append({key.strip(): coerce_scalar(rest)})
-                else:
-                    data[current_list_key].append(coerce_scalar(item))
+                data[current_list_key][-1][key] = coerce_scalar(rest)
+        else:
+            item = item[1:].strip()
+            if ":" in item:
+                key, _, rest = item.partition(":")
+                data[current_list_key].append({key.strip(): coerce_scalar(rest)})
+            else:
+                data[current_list_key].append(coerce_scalar(item))
 
     return data
 
