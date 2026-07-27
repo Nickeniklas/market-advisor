@@ -3,10 +3,26 @@ persona.md
 
 # Personal portfolio data - contains real holdings, balances, and notes
 portfolio.md
+portfolio.md.bak
+
+# Raw broker exports - your actual positions, straight from the broker
+portfolio/raw/*
+!portfolio/raw/.gitkeep
+
+# Ticker/tag lookup - names every holding you own, so it stays local.
+# Auto-created on first build; see README.
+portfolio/instruments.csv
+
+# Generated positions table - built from the raw export above
+/portfolio.positions.md
 
 # Real session logs - contain personal financial details derived from portfolio.md
 sessions/*.md
 !sessions/.gitkeep
+
+# Python bytecode from tools/
+__pycache__/
+*.pyc
 
 # Built dashboard - generated from session logs, contains personal financial data
 # Rooted so it doesn't also catch demo/dashboard.html, which is committed

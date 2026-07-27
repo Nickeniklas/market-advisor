@@ -10,8 +10,9 @@
 ```
 Run a full market advisor session following the CLAUDE.md instructions.
 
-Start with Step 1 (fetch current macro data via web search), then read persona.md
-and portfolio.md, then proceed through all steps in order. Log the session when done.
+Start with Step 1 (fetch current macro data via web search), then read persona.md,
+portfolio.positions.md, and portfolio.md, then proceed through all steps in order.
+Log the session when done.
 
 Any additional context for this session:
 [Optional: e.g. "I'm specifically thinking about whether to deploy my cash now or wait"
@@ -22,8 +23,14 @@ Any additional context for this session:
 
 ## Tips for Getting the Most Out of Each Session
 
-- **Update `portfolio.md` first** — especially the "What I'm Thinking About" section.
-  This is what makes the analysis personal rather than generic.
+- **Refresh your positions first** — export from your broker into `portfolio/raw/`
+  and run `python3 tools/build_portfolio.py`. Takes a minute and keeps every weight
+  and concentration figure honest; a stale snapshot quietly understates whatever
+  has moved since.
+
+- **Then update `portfolio.md`** — especially the "What I'm Thinking About" section.
+  This is what makes the analysis personal rather than generic. Positions don't go
+  in this file anymore; they come from the build above.
 
 - **Add a specific question** in the optional context field. Broad sessions are good
   for regular check-ins; focused questions ("explain duration risk to me using my
@@ -42,7 +49,7 @@ Any additional context for this session:
 
 | Frequency | Trigger |
 |-----------|---------|
-| Monthly | Routine check-in, update portfolio.md |
+| Monthly | Routine check-in, refresh the export and update portfolio.md |
 | After major macro events | Fed/ECB rate decisions, CPI prints, geopolitical shocks |
 | Before deploying significant cash | Any time you're considering a move > €1,000 |
 | When you feel anxious about markets | Reground in long-term principles |

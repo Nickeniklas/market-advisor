@@ -6,6 +6,52 @@ your portfolio or market-session history, which live in git-ignored files under
 
 ---
 
+## 2026-07-26 — Portfolio numbers are built from a broker export, not typed by hand
+
+Positions lived as a hand-typed markdown table in `portfolio.md`, with manually
+converted EUR values and hand-arithmetic totals, currency splits, and
+concentration percentages. Nothing recomputed them, so they rotted silently —
+the last two pulse logs each opened by flagging that the table was still marked
+to a date six weeks old. Checking the first real broker export against it showed
+the drift was worse than stale prices: two positions had been bought that the
+file didn't list at all, and it still described that purchase as a pending
+decision. Every derived percentage described a portfolio that no longer existed.
+
+- Added **`tools/build_portfolio.py`** (stdlib only, like `build_dashboard.py`).
+  Reads broker CSV exports from `portfolio/raw/` and writes
+  `portfolio.positions.md`: the holdings table plus computed weights, currency
+  exposure, thematic blocs, concentration, and cost basis / unrealized return.
+  Updating your numbers is now "drop in a new export, re-run" — nothing is
+  retyped.
+- Handles the Nordnet export as it actually ships: UTF-16 with a BOM,
+  tab-delimited, Finnish decimal commas, and a non-breaking space inside one
+  header name. Encoding and delimiter are detected rather than assumed, and
+  column headers are matched through an alias table so a broker renaming a
+  column fails loudly instead of silently producing wrong numbers.
+- The export carries no date column, so the **as-of date comes from the
+  filename** (`nordnet-26.7.2026.csv` and ISO naming both work). The generated
+  file states its own as-of date and, past 14 days, carries a staleness banner —
+  turning the complaint the pulses had been raising by hand into an automatic
+  check. `CLAUDE.md` now requires sessions to check that date.
+- Several exports can sit in `portfolio/raw/` at once: the newest date wins and
+  files sharing that date are combined, so old exports can be kept as history
+  without being double-counted, and a second broker can be added without a
+  rewrite.
+- Ticker symbols and thematic tags come from **`portfolio/instruments.csv`**,
+  auto-created on first build and appended to whenever a new holding appears.
+  It is git-ignored deliberately: the list of names you own is personal data,
+  and the build script is committed. Tags may overlap, so the generated file
+  states that blocs don't sum to 100%.
+- **`portfolio.md` no longer holds positions.** It keeps what a broker export
+  can't know: why each position is held, cash outside the brokerage,
+  constraints, and "What I'm Thinking About". `portfolio.template.md` mirrors
+  the new split.
+- `CLAUDE.md` gains a **"Portfolio data (both modes)"** section stating which
+  file owns what; deep Step 2, pulse Step 1, the Step 3 exposure map, the Step 6
+  log template, and the pulse boundaries all now point at the generated file for
+  numbers and `portfolio.md` for narrative. Exposure maps must cite real weights
+  and may name a whole bloc with its share.
+
 ## 2026-07-21 — Deep sessions now review the previous one: scenario scoring, falsifiers, exposure maps
 
 Deep sessions previously started from a blank slate each time — new scenarios

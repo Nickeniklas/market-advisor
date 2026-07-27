@@ -1,10 +1,14 @@
 # My Portfolio Context
 
-> Keep this file up to date. Claude reads this at the start of every session.
-> Be honest — the more accurate this is, the more relevant the analysis.
->
-> Copy this file to `portfolio.md` and fill in your real numbers.
+> Copy this file to `portfolio.md` and fill it in.
 > `portfolio.md` is git-ignored so your data stays local.
+>
+> **Positions don't go in this file.** They're built from your broker export by
+> `python tools/build_portfolio.py`, which writes `portfolio.positions.md`. Drop an
+> export in `portfolio/raw/` and run the build — see README.md for setup.
+>
+> This file is for what a broker export can't know: why you hold things, cash held
+> outside the brokerage, and what's on your mind. Claude reads both at session start.
 
 ---
 
@@ -18,21 +22,21 @@
 
 ---
 
-## Current Positions
+## Position Notes
 
-> List your holdings. Approximate values are fine — ballpark is enough for analysis.
-> Format: Name | Type | Approx. value | Notes
+> Why a position exists, in your words — the reasoning a broker export has no idea
+> about. Weights, returns, and currency splits are computed in
+> `portfolio.positions.md`; don't restate them here, they'll only go stale.
+> Thematic groupings are assigned in `portfolio/instruments.csv`.
 
-| Name | Ticker | Type | Orig. currency | Approx. value (€) | Notes |
-|------|--------|------|----------------|-------------------|-------|
-| | | | | | |
-
-**Total portfolio value: ~€[fill in]**
-*(FX rates used: ... — as of [date])*
+- **[Ticker]** — [e.g. Indirect exposure to a supply chain I'm already long]
+- **[Ticker]** — [e.g. Small speculative position, sized to be written off]
 
 ---
 
 ## Cash Position
+
+> Broker exports don't include cash, so this stays hand-maintained.
 
 - **Total uninvested cash:** ~€[fill in]
 - **Breakdown:** [e.g. €X in brokerage cash, €Y in bank savings]

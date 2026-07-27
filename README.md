@@ -18,12 +18,17 @@ market-advisor/
 ├── persona.template.md   ← Template — copy to persona.md and fill in who you are / where you invest
 ├── persona.md            ← YOUR context: country, tax wrappers, platforms, horizon (git-ignored)
 ├── portfolio.template.md ← Template — copy to portfolio.md and fill in your details
-├── portfolio.md          ← YOUR context: holdings, cash, what's on your mind (git-ignored)
+├── portfolio.md          ← YOUR context: why you hold things, cash, what's on your mind (git-ignored)
+├── portfolio/
+│   ├── raw/              ← Drop your broker CSV export here (git-ignored)
+│   └── instruments.csv   ← Ticker + tag per holding, auto-created on first build (git-ignored)
+├── portfolio.positions.md ← Generated holdings table — built from the export (git-ignored)
 ├── EXAMPLE-SESSION.md    ← Generic sample of session output (no personal data)
 ├── run.md                ← How to start a session + tips
 ├── README.md             ← This file
 ├── CHANGELOG.md          ← History of repo/template setup changes (not your portfolio)
 ├── tools/
+│   ├── build_portfolio.py       ← Builds portfolio.positions.md from portfolio/raw/ (stdlib only)
 │   ├── build_dashboard.py       ← Builds dashboard.html from sessions/ frontmatter (stdlib only)
 │   └── dashboard.template.html  ← Dashboard template (generic — data is injected at build time)
 ├── obsidian/
@@ -48,18 +53,25 @@ generic and contains no personal data — safe to push to a public remote.
 | `CLAUDE.md`, `README.md`, `run.md`, `CHANGELOG.md` | ✅ Yes | Generic instructions/docs only |
 | `persona.template.md`, `portfolio.template.md` | ✅ Yes | Empty templates with `[placeholder]` examples |
 | `EXAMPLE-SESSION.md` | ✅ Yes | Generic sample output, no real numbers |
-| `tools/build_dashboard.py`, `tools/dashboard.template.html` | ✅ Yes | Generic build script + template, no data |
+| `tools/build_portfolio.py`, `tools/build_dashboard.py`, `tools/dashboard.template.html` | ✅ Yes | Generic build scripts + template, no data |
 | `obsidian/Market Sessions Dashboard.md` | ✅ Yes | Generic Dataview queries, no data |
 | `demo/dashboard.html`, `demo/sessions/*.md` | ✅ Yes | Synthetic sample data only — no real sessions, never reads `persona.md`/`portfolio.md`/`sessions/` |
 | **`persona.md`** | ❌ No (git-ignored) | Your country, tax wrappers, platforms, horizon, language |
-| **`portfolio.md`** | ❌ No (git-ignored) | Your holdings, cash, notes |
+| **`portfolio.md`** | ❌ No (git-ignored) | Why you hold things, cash, notes |
+| **`portfolio/raw/*.csv`** | ❌ No (git-ignored) | Raw broker export — your actual positions |
+| **`portfolio/instruments.csv`** | ❌ No (git-ignored) | Names every holding you own, so it stays local |
+| **`portfolio.positions.md`** | ❌ No (git-ignored) | Built output — holdings, weights, concentration |
 | **`sessions/*.md`** | ❌ No (git-ignored) | Your real session logs |
 | **`dashboard.html`** | ❌ No (git-ignored) | Built output — embeds your session data |
 
 If you ever see real personal details (your country, holdings, account numbers,
 etc.) inside `CLAUDE.md`, `README.md`, or any other file from the "pushed" rows —
 that's a bug. It should only ever live in `persona.md`, `portfolio.md`,
-`sessions/`, or `dashboard.html`.
+`portfolio/`, `portfolio.positions.md`, `sessions/`, or `dashboard.html`.
+
+This is why the ticker/tag lookup lives in `portfolio/instruments.csv` rather
+than inside `tools/build_portfolio.py` — the list of names you own is personal
+data, and the script is committed.
 
 ---
 
@@ -69,11 +81,31 @@ that's a bug. It should only ever live in `persona.md`, `portfolio.md`,
    wrappers, platform(s), home market index, investment horizon, and experience
    level — this is what makes the persona/teaching style fit you instead of being
    generic
-2. **Copy `portfolio.template.md` to `portfolio.md`** and fill in your actual positions and cash
-3. Open the project in Claude Code: `claude` in this directory
-4. Paste the prompt from `run.md` (or just say "run a market advisor session")
-5. Read the output, push back with follow-up questions, think about the open questions
-6. Session is auto-logged to `sessions/`
+2. **Copy `portfolio.template.md` to `portfolio.md`** and fill in your cash, your
+   constraints, and why you hold what you hold — positions themselves come from
+   your broker, not from this file
+3. **Export your positions** from your broker as CSV and drop the file in
+   `portfolio/raw/`, with the date in the filename (`nordnet-26.7.2026.csv` or
+   `nordnet-2026-07-26.csv` — both work). Then:
+
+   ```
+   python3 tools/build_portfolio.py
+   ```
+
+   The first run creates `portfolio/instruments.csv` listing your holdings with
+   blank `ticker` and `tags` columns. Fill those in (separate multiple tags with
+   `;`, e.g. `nordic;financials`) and re-run. That file is the only hand-maintained
+   part, and only when you buy something new — the build appends new holdings and
+   tells you.
+4. Open the project in Claude Code: `claude` in this directory
+5. Paste the prompt from `run.md` (or just say "run a market advisor session")
+6. Read the output, push back with follow-up questions, think about the open questions
+7. Session is auto-logged to `sessions/`
+
+**Updating your numbers later:** drop a fresh export in `portfolio/raw/` and re-run
+the build. Nothing else needs touching — weights, currency exposure, thematic blocs,
+and concentration are all recomputed. The newest dated file wins, so you can keep
+old exports around as history without them being double-counted.
 
 ---
 
@@ -105,7 +137,8 @@ python3 tools/build_dashboard.py --sessions-dir demo/sessions --output demo/dash
 3. **3 Scenarios** — plausible macro futures, each with a probability expressed
    as a delta from the last session where the same `family` recurs (with the
    reason for the change), 1–2 concrete falsifiers to watch, and an exposure
-   map naming the actual `portfolio.md` positions it affects
+   map naming the actual `portfolio.positions.md` holdings it affects, with
+   their real weights
 4. **Key Principles** — timeless concepts made relevant to right now
 5. **Open Questions** — hard questions to sit with before next session
 6. **Session Log** — saved automatically to `sessions/YYYY-MM-DD.md`, starting
@@ -199,10 +232,15 @@ removed, so old logs stay queryable next to new ones.
 
 - `persona.md` is mostly a one-time setup — revisit it only if you move countries,
   switch brokers, or your tax situation changes
+- Drop a fresh broker export in `portfolio/raw/` and re-run
+  `python3 tools/build_portfolio.py` before each session — this is what keeps
+  weights and concentration honest. A snapshot older than 14 days makes the build
+  print a warning and the generated file carry a staleness banner.
 - Update `portfolio.md` before each session (especially "What I'm Thinking About")
 - Re-run `python3 tools/build_dashboard.py` after each session to refresh the dashboard
-- `persona.md`, `portfolio.md`, `sessions/*.md`, and `dashboard.html` are
-  git-ignored — they hold your personal details and financial data and won't be
-  committed to this repo. If you want version history for these over time, keep
-  a separate private repo or local backups for these files.
+- `persona.md`, `portfolio.md`, `portfolio/`, `portfolio.positions.md`,
+  `sessions/*.md`, and `dashboard.html` are git-ignored — they hold your personal
+  details and financial data and won't be committed to this repo. If you want
+  version history for these over time, keep a separate private repo or local
+  backups for these files.
 - Sessions folder builds into a personal investment journal over months/years (locally)

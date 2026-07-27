@@ -44,6 +44,31 @@ declares which. If no mode is given, default to MODE: deep.
 
 ---
 
+## Portfolio data (both modes)
+
+Portfolio numbers are **generated, never hand-written**. Two files, two jobs:
+
+- **`portfolio.positions.md`** — holdings, weights, currency exposure, thematic
+  blocs, and concentration. Built by `python tools/build_portfolio.py` from the
+  broker export in `portfolio/raw/`. Treat it as the single source of truth for
+  every number. Never edit it; edits are overwritten on the next build.
+- **`portfolio.md`** — what no broker export knows: why each position is held,
+  cash outside the brokerage, constraints, and "What I'm Thinking About".
+
+Read both at the start of every session.
+
+**Always check the `As of` date at the top of `portfolio.positions.md`** against
+today. If the snapshot is more than ~2 weeks old, say so plainly near the top of
+the session and treat the weights as approximate — a stale snapshot silently
+understates whatever has moved since. (The build prints the same warning past 14
+days.) Tell the user to export a fresh file from their broker into
+`portfolio/raw/` and re-run the build.
+
+If `portfolio.positions.md` is missing entirely, say so and explain the one-time
+setup rather than falling back to numbers scraped from an old session log.
+
+---
+
 ## Session Log Frontmatter (both modes)
 
 Every session log file MUST begin with a YAML frontmatter block. This makes the
@@ -146,7 +171,9 @@ nothing material will have changed, and saying so plainly is a correct,
 valuable output — do not invent significance to fill space.
 
 Steps:
-1. Read portfolio.md for current positions and the "What I'm Thinking About" section.
+1. Read portfolio.positions.md for current holdings and weights, and portfolio.md
+   for position notes, cash, and the "What I'm Thinking About" section. Check the
+   positions file's **As of** date — see "Portfolio data" above.
 2. Read the most recent file in sessions/ (pulse or deep) for continuity,
    AND the most recent deep-mode log. The scenario baseline — probabilities,
    families, and falsifiers you compare against — always comes from the
@@ -163,7 +190,8 @@ What counts as "material":
 - A rate decision or a clear shift in central-bank guidance
 - An inflation print that breaks the recent trend
 - A market move large enough to change a scenario's probability
-- News that directly touches a holding or a theme in portfolio.md
+- News that directly touches a holding in portfolio.positions.md or a theme in
+  portfolio.md
 - Any falsifier declared in the latest deep session firing. A fired
   falsifier is automatically material and normally sets
   deep_session_recommended: true.
@@ -182,9 +210,10 @@ Do NOT produce scenario tables, probability estimates, or teaching content
 in pulse mode. That is deep-mode work.
 
 Boundaries:
-- Only create a new file in sessions/. Never edit CLAUDE.md or portfolio.md.
-- If portfolio.md or sessions/ can't be read, write a log noting the failure
-  rather than guessing.
+- Only create a new file in sessions/. Never edit CLAUDE.md or portfolio.md, and
+  never hand-edit portfolio.positions.md — it is generated and will be overwritten.
+- If portfolio.md, portfolio.positions.md, or sessions/ can't be read, write a log
+  noting the failure rather than guessing.
 
 ---
 
@@ -217,9 +246,12 @@ not a snapshot entry.
 Summarize this as **"Today's Macro Snapshot"** — concise, factual, no opinions yet.
 
 ### Step 2 — Read Personal Context
-Read `persona.md` and `portfolio.md` carefully. Note the user's location, tax
-wrappers, platform(s), current positions, cash level, and any stated constraints.
-Reference both throughout the analysis — make it personal, not generic.
+Read `persona.md`, `portfolio.positions.md`, and `portfolio.md` carefully — see
+"Portfolio data" above for which file owns what, and check the positions file's
+`As of` date before relying on its weights. Note the user's location, tax
+wrappers, platform(s), current holdings and their weights, concentration and
+currency exposure, cash level, and any stated constraints. Reference all three
+throughout the analysis — make it personal, not generic.
 
 ### Step 2.5 — Review the Previous Deep Session
 
@@ -256,10 +288,13 @@ Present **3 plausible macro scenarios** given the current environment. For each:
   the next pulse must be able to answer fired / not fired without judgment
   calls. These go in the prose, and optionally in frontmatter (see the
   "Session Log Frontmatter" section).
-- **Exposure map:** a short table mapping the actual holdings and cash from
-  `portfolio.md` to this scenario — which positions are most exposed, in
-  which direction, and why (one line each). Generic statements ("the
-  portfolio is diversified") are not acceptable; name the positions.
+- **Exposure map:** a short table mapping the actual holdings from
+  `portfolio.positions.md` (and cash from `portfolio.md`) to this scenario —
+  which positions are most exposed, in which direction, and why (one line
+  each). Generic statements ("the portfolio is diversified") are not
+  acceptable; name the positions and cite their actual weights. Where a whole
+  thematic bloc moves together, say so with its share (e.g. "the `ai-supply`
+  bloc, 53.9% of invested value") rather than listing each holding separately.
 
 Format each scenario clearly with headers. Be honest when scenarios overlap or
 when history gives mixed signals.
@@ -309,8 +344,11 @@ first deep session, state that instead.]
 ## Key Takeaways
 [3–5 bullet points of the most important educational points from this session]
 
-## Portfolio State (from portfolio.md at time of session)
-[paste a brief summary of the user's current positions/cash]
+## Portfolio State (positions as of YYYY-MM-DD, cash from portfolio.md)
+[brief summary: total invested value, top holdings and weights, currency split,
+any thematic bloc that matters this session, and cash. Use the positions file's
+`As of` date in the heading — not today's date, if they differ — and note it
+explicitly when the snapshot was stale at session time.]
 
 ## Open Questions Left for Next Session
 [the 3 questions from Step 5]
