@@ -6,6 +6,38 @@ your portfolio or market-session history, which live in git-ignored files under
 
 ---
 
+## 2026-08-08 — Documented pulse mode; standardized the name on "pulse"
+
+Pulse mode was fully specified in `CLAUDE.md` but never mentioned in
+`README.md` or `run.md` as something the user could actually trigger — there
+was no way to learn it existed short of reading the mode spec directly.
+Separately, `CLAUDE.md`'s section header read `MODE: weekly-pulse` while the
+`mode:` value every pulse log actually writes to frontmatter is `pulse`, a
+naming mismatch.
+
+- `CLAUDE.md`: renamed the `### MODE: weekly-pulse` header to
+  `### MODE: pulse`. Step content is unchanged. Clarified in "Session Modes"
+  that a routine is a Claude Code scheduled task the user sets up themselves
+  locally — nothing is scheduled by default.
+- `run.md`: added a "Pulse Session Prompt" block alongside the existing one
+  (renamed "Deep Session Prompt" for clarity), noted the pulse prompt can be
+  saved as a user-managed local routine, split the tips section by which
+  apply to pulse vs. deep, and added a weekly pulse row to the cadence table
+  with existing rows marked as deep.
+- `README.md`: Quick Start now states it runs a deep session by default and
+  points at the pulse prompt. Added a "Session Modes" section ahead of "What
+  Each Session Produces" describing both modes and pointing at
+  `demo/sessions/*-pulse.md` for real pulse output examples; that section now
+  states up front it describes deep only.
+- Grepped the repo for `weekly-pulse` after the change — the only remaining
+  hits are inside past changelog entries below, which describe history and
+  are left as written.
+
+**Net effect:** pulse is now discoverable from the docs a new user actually
+reads first, and the mode name is spelled one way everywhere going forward.
+
+---
+
 ## 2026-07-26 — Portfolio numbers are built from a broker export, not typed by hand
 
 Positions lived as a hand-typed markdown table in `portfolio.md`, with manually

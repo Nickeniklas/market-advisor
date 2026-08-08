@@ -39,8 +39,11 @@ fill it in, and re-run.
 
 ## Session Modes
 
-This project runs in one of two modes. The session prompt or routine
-declares which. If no mode is given, default to MODE: deep.
+This project runs in one of two modes. The session prompt declares which —
+either pasted directly (see `run.md`) or delivered by a Claude Code routine,
+a scheduled task the user sets up themselves on their own machine. Nothing is
+scheduled by default; this repo ships no schedule. If no mode is given,
+default to MODE: deep.
 
 ---
 
@@ -164,7 +167,7 @@ scenario entry is how continuity is declared explicitly instead of assumed:
 
 ---
 
-### MODE: weekly-pulse
+### MODE: pulse
 
 A short, automated check-in. The point is continuity, not depth. Most weeks
 nothing material will have changed, and saying so plainly is a correct,

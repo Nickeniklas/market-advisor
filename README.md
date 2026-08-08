@@ -98,9 +98,13 @@ data, and the script is committed.
    part, and only when you buy something new — the build appends new holdings and
    tells you.
 4. Open the project in Claude Code: `claude` in this directory
-5. Paste the prompt from `run.md` (or just say "run a market advisor session")
+5. Paste the Deep Session Prompt from `run.md` (or just say "run a market advisor
+   session") — this runs a full deep session by default
 6. Read the output, push back with follow-up questions, think about the open questions
 7. Session is auto-logged to `sessions/`
+
+A shorter **pulse** mode also exists for check-ins between deep sessions — see
+"Session Modes" below and the Pulse Session Prompt in `run.md`.
 
 **Updating your numbers later:** drop a fresh export in `portfolio/raw/` and re-run
 the build. Nothing else needs touching — weights, currency exposure, thematic blocs,
@@ -126,7 +130,30 @@ python3 tools/build_dashboard.py --sessions-dir demo/sessions --output demo/dash
 
 ---
 
+## Session Modes
+
+This project runs in one of two modes, declared by the prompt used to start it
+(see `run.md`). If no mode is given, it defaults to deep.
+
+- **Deep** — the full analysis: macro snapshot, review of the previous deep
+  session's scenarios and falsifiers, 3 new scenarios with an exposure map
+  against your actual holdings, key principles, and open questions. Manually
+  triggered — see "What Each Session Produces" below and "Suggested Session
+  Cadence" in `run.md`.
+- **Pulse** — a short, automated check-in. It fetches current macro data,
+  compares it against the latest deep session's scenarios and declared
+  falsifiers, and reports only what materially changed. Most weeks nothing
+  will have, and saying so plainly is the correct, valuable output — not a
+  failure of the tool. Pulse produces no scenario tables or teaching content;
+  that's deep-mode work. See `demo/sessions/*-pulse.md` for real examples of
+  the output shape.
+
+---
+
 ## What Each Session Produces
+
+This section describes a **deep** session; see "Session Modes" above for how
+pulse differs.
 
 1. **Macro Snapshot** — current inflation, rates, equity levels, key risks,
    each data point dated to its as-of print or reference period
