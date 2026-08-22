@@ -61,14 +61,28 @@ Portfolio numbers are **generated, never hand-written**. Two files, two jobs:
 Read both at the start of every session.
 
 **Always check the `As of` date at the top of `portfolio.positions.md`** against
-today. If the snapshot is more than ~2 weeks old, say so plainly near the top of
-the session and treat the weights as approximate — a stale snapshot silently
-understates whatever has moved since. (The build prints the same warning past 14
-days.) Tell the user to export a fresh file from their broker into
-`portfolio/raw/` and re-run the build.
+today. Take today's date from the environment — never infer it from the newest
+file in `sessions/` or from the positions file itself, both of which are as old
+as the last session. State the snapshot's age in days explicitly. If it is more
+than ~2 weeks old, say so plainly near the top of the session and treat the
+weights as approximate — a stale snapshot silently understates whatever has
+moved since. (The build prints the same warning past 14 days, so exactly 14
+passes silently; treat anything near the line as stale.) Tell the user to export
+a fresh file from their broker into `portfolio/raw/` and re-run the build.
 
 If `portfolio.positions.md` is missing entirely, say so and explain the one-time
 setup rather than falling back to numbers scraped from an old session log.
+
+**Fill blank cells in `portfolio/instruments.csv`.** The build auto-appends a row
+for any holding it doesn't recognise, but leaves `ticker` and `tags` empty — and
+an untagged holding appears in **no** thematic bloc, so it vanishes from every
+exposure map without warning. At the start of every session, check the file for
+blank `ticker` or `tags` cells. If any exist, propose a value for each (reuse
+existing tag slugs where they fit; coin a new one only for a genuinely new
+category), show the user the one-line proposal, and write the confirmed values
+back before using any bloc figures. A blank `tags` cell is legitimate only if the
+user says so explicitly. Classification is the model's job here, not the user's —
+this is the one generated-adjacent file a session is expected to edit.
 
 ---
 

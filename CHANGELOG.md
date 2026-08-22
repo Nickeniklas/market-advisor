@@ -6,6 +6,48 @@ your portfolio or market-session history, which live in git-ignored files under
 
 ---
 
+## 2026-08-22 — Sessions now anchor to the real date and fill blank instrument tags
+
+Two silent-failure modes surfaced in the same session, both of which had already
+corrupted real output.
+
+**Date inference.** A deep session read the newest files in the repo — a
+2026-08-08 pulse log and a 2026-08-08 positions build — and concluded that was
+today's date. It was 2026-08-22. The session was logged under the wrong date,
+its macro data was two weeks stale, and it told the user the portfolio snapshot
+was "same-day fresh" when it was 14 days old. Nothing in the repo asserts the
+current date, and `build_portfolio.py` warns only at `age > 14`, so a snapshot at
+exactly 14 days passes with no warning at all.
+
+**Blank instrument tags.** `apply_instruments()` appends a row for any holding
+the export contains but `instruments.csv` doesn't know — with `ticker` and `tags`
+empty — and warns once. Filling them was left to the user. In practice several
+holdings sat untagged from the file's creation on 2026-07-27 through three pulses
+and one deep session. An untagged holding appears in no thematic bloc, so a
+double-digit percentage of the portfolio — including one of its largest
+positions — was invisible in every exposure map produced in that window. The task
+is classification, which the model does well and a CSV form does badly.
+
+- `CLAUDE.md`: in "Portfolio data (both modes)", the `As of` check now requires
+  taking today's date from the environment rather than inferring it from
+  `sessions/` or the positions file, and stating the snapshot's age in days
+  explicitly; notes that the build's warning fires past 14 days so exactly 14
+  passes silently. Added a paragraph making blank `tags` cells in
+  `portfolio/instruments.csv` a session responsibility: check at session start,
+  propose a tag per blank (reusing existing slugs where they fit), confirm with
+  the user, write back before using any bloc figures. Names it explicitly as the
+  one generated-adjacent file a session is expected to edit.
+- `README.md`: "Maintenance" gained the exactly-14-days caveat, a bullet stating
+  thematic tags are now handled by the session rather than by hand, and a bullet
+  making explicit that Position Notes are *not* automatic and nothing warns when
+  one is missing. The `instruments.csv` line in "Project Structure" now says
+  blank tags are filled by the session.
+
+Not changed: `build_portfolio.py`. The auto-append and the warning already work
+correctly — the gap was that nothing was responsible for acting on the warning.
+
+---
+
 ## 2026-08-08 — Documented pulse mode; standardized the name on "pulse"
 
 Pulse mode was fully specified in `CLAUDE.md` but never mentioned in

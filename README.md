@@ -21,7 +21,7 @@ market-advisor/
 ├── portfolio.md          ← YOUR context: why you hold things, cash, what's on your mind (git-ignored)
 ├── portfolio/
 │   ├── raw/              ← Drop your broker CSV export here (git-ignored)
-│   └── instruments.csv   ← Ticker + tag per holding, auto-created on first build (git-ignored)
+│   └── instruments.csv   ← Ticker + tag per holding, auto-created on first build; blank tags filled by the session (git-ignored)
 ├── portfolio.positions.md ← Generated holdings table — built from the export (git-ignored)
 ├── EXAMPLE-SESSION.md    ← Generic sample of session output (no personal data)
 ├── run.md                ← How to start a session + tips
@@ -93,10 +93,11 @@ data, and the script is committed.
    ```
 
    The first run creates `portfolio/instruments.csv` listing your holdings with
-   blank `ticker` and `tags` columns. Fill those in (separate multiple tags with
-   `;`, e.g. `nordic;financials`) and re-run. That file is the only hand-maintained
-   part, and only when you buy something new — the build appends new holdings and
-   tells you.
+   blank `ticker` and `tags` columns. You don't have to fill these in yourself —
+   the session checks for blanks at the start, proposes a ticker and tag for each,
+   and writes them back once you confirm. Fill them by hand if you'd rather
+   (separate multiple tags with `;`, e.g. `nordic;financials`) and re-run. Either
+   way the build appends new holdings on its own and tells you.
 4. Open the project in Claude Code: `claude` in this directory
 5. Paste the Deep Session Prompt from `run.md` (or just say "run a market advisor
    session") — this runs a full deep session by default
@@ -262,8 +263,21 @@ removed, so old logs stay queryable next to new ones.
 - Drop a fresh broker export in `portfolio/raw/` and re-run
   `python3 tools/build_portfolio.py` before each session — this is what keeps
   weights and concentration honest. A snapshot older than 14 days makes the build
-  print a warning and the generated file carry a staleness banner.
+  print a warning and the generated file carry a staleness banner. Note the
+  warning fires *past* 14 days, so a snapshot at exactly 14 passes silently —
+  the session states the age in days regardless.
 - Update `portfolio.md` before each session (especially "What I'm Thinking About")
+- **Thematic tags are handled for you.** The build auto-appends a row to
+  `portfolio/instruments.csv` for any holding it doesn't recognise, but leaves the
+  `tags` cell blank — and an untagged holding appears in **no** bloc, so it drops
+  out of every exposure map silently. The session checks for blank tags at the
+  start, proposes one per holding, and writes them back once you confirm. You
+  don't need to edit the CSV by hand.
+- **Position notes are not automatic and nothing warns about them.** The build
+  knows a holding's name, ticker, quantity and price; it cannot know *why* you own
+  it. A new holding appears in the positions table and in `instruments.csv` on its
+  own, but its entry under "Position Notes" in `portfolio.md` stays blank until you
+  write it. That note is what a trim or rebalance decision actually turns on.
 - Re-run `python3 tools/build_dashboard.py` after each session to refresh the dashboard
 - `persona.md`, `portfolio.md`, `portfolio/`, `portfolio.positions.md`,
   `sessions/*.md`, and `dashboard.html` are git-ignored — they hold your personal
