@@ -371,6 +371,38 @@ explicitly when the snapshot was stale at session time.]
 [the 3 questions from Step 5]
 ```
 
+### Step 7 — Reconcile `portfolio.md`
+
+A deep session reads `portfolio.md` and, without this step, never writes back — so
+the file only ever grows. After logging, do three things:
+
+1. **Promote durable reasoning into Position Notes.** When the user's answers in
+   "What I'm Thinking About" explain *why a position is held or not sold*, that is
+   standing context, not session traffic. Fold it into that holding's Position Note
+   in their own voice. A reason that lives only in an answer to a one-off question
+   is lost the moment the question scrolls away.
+2. **Delete what the build now generates.** Any weight, percentage, total, or
+   arithmetic hand-written into `portfolio.md` is stale the day it's typed —
+   `portfolio.positions.md` has the live figure. Remove it rather than updating it.
+   The same applies to prose that exists only to warn that a hand-written number has
+   gone stale.
+3. **Drop your own margin notes once they're logged.** Commentary you added to a
+   Position Note in an earlier session ("*Note for future sessions: …*") belongs in
+   the session log. Once it appears there, remove it from `portfolio.md`.
+
+**The hard rule: never delete reasoning that exists nowhere else.** Before removing
+anything the user wrote, confirm it survives somewhere — a Position Note or a session
+log. If it doesn't, move it first, then delete. When in doubt, leave it and say so.
+
+**Do not clear "What I'm Thinking About" wholesale.** It is the user's input area and
+often already holds notes for the *next* session, written before you ran. Promote
+what belongs in Position Notes and leave the rest alone. If it's ambiguous whether an
+answer is durable context or a passing thought, ask instead of guessing.
+
+`portfolio.md` and `portfolio/instruments.csv` are the only hand-maintained files a
+deep session may edit. `portfolio.positions.md` stays generated, `CLAUDE.md` stays
+off-limits, and pulse sessions still edit nothing but their own log.
+
 ---
 
 ## Tone & Style
