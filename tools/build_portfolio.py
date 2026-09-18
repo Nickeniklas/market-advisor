@@ -9,7 +9,10 @@ Reads:   portfolio/raw/*.csv   (Nordnet positions export, unmodified)
 Writes:  portfolio.positions.md (repo root — git-ignored, contains your data)
 
 Drop a fresh export in and re-run: every number downstream is recomputed and
-dated. Nothing here is hand-maintained except the INSTRUMENTS table below.
+dated. Nothing here is hand-maintained except portfolio/instruments.csv (ticker
+and tags per holding). Holdings with a blank tags cell are reported on every
+build and named in a banner in the generated file until they are tagged, or
+settled with '-' (deliberately no tags). Idempotent — safe to re-run any time.
 
 This is the cleaning step — all normalization (encoding, delimiters, decimal
 commas, ticker lookup, tagging) happens here, once. The generated file is the
@@ -35,11 +38,13 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 # so both come from portfolio/instruments.csv — a git-ignored file, because the
 # list of what you own is personal data and this script is committed.
 #
-# It is created for you on first run, pre-filled with the names from your export
-# and blank ticker/tags columns to fill in. Buy something new and the next build
-# appends it and tells you.
+# It is created on first run, pre-filled with the names from your export and
+# blank ticker/tags columns. Buy something new and the next build appends it.
+# A blank tags cell means "not yet decided" and is reported on every build until
+# resolved; a literal '-' means "deliberately no tags" and settles the row.
 INSTRUMENTS_FILE = "instruments.csv"
 INSTRUMENTS_HEADER = ["nimi", "ticker", "tags"]
+NO_TAGS = "-"
 
 # One-line gloss per tag, so the generated file explains its own groupings
 # instead of leaving a bare slug to be interpreted. Generic financial concepts,
@@ -205,31 +210,61 @@ def read_export(path: Path, warnings: list) -> list:
     return positions
 
 
-def apply_instruments(positions: list, path: Path, warnings: list):
+def apply_instruments(positions: list, path: Path, warnings: list) -> set:
     """Attach ticker and tags to each position from portfolio/instruments.csv.
 
     The file is created on first run and appended to whenever the export
     contains a name it doesn't know, so a new holding is a fill-in-the-blank
-    rather than a setup step. A blank ticker or tags cell is legitimate — plenty
-    of holdings need no tags — so only *absent rows* are reported.
+    rather than a setup step.
+
+    A blank tags cell means "not yet decided": every build reports it, not just
+    the one that appended the row, so the warning can't be consumed by whoever
+    happened to run the build first. A literal '-' means "deliberately no tags"
+    (e.g. a global index ETF) and silences it. The '-' is a sentinel, never a
+    tag — it is stripped here, and the names it settles are returned so
+    render() can tell settled-empty from undecided-empty.
     """
     known = {}
+    settled = set()
     if path.is_file():
         with path.open(encoding="utf-8", newline="") as fh:
             for row in csv.DictReader(fh):
                 nimi = (row.get("nimi") or "").strip()
                 if not nimi:
                     continue
-                tags = [t.strip() for t in (row.get("tags") or "").split(";") if t.strip()]
+                tokens = [t.strip() for t in (row.get("tags") or "").split(";") if t.strip()]
+                if NO_TAGS in tokens:
+                    settled.add(nimi)
+                tags = [t for t in tokens if t != NO_TAGS]
                 known[nimi] = ((row.get("ticker") or "").strip(), tags)
 
     missing = [p["name"] for p in positions if p["name"] not in known]
     for p in positions:
         p["ticker"], p["tags"] = known.get(p["name"], ("", []))
 
-    if not missing:
-        return
+    if missing:
+        append_instruments(path, missing, warnings)
 
+    untagged = untagged_names(positions, settled)
+    if untagged:
+        warnings.append(
+            f"{len(untagged)} holding(s) still untagged in {path.name} "
+            f"({', '.join(untagged)})\n"
+            f"    — they appear in no thematic bloc. '-' in tags marks one as "
+            f"deliberately untagged."
+        )
+    return settled
+
+
+def untagged_names(positions: list, settled: set) -> list:
+    """Holdings with no tags that haven't been settled with '-', deduplicated
+    (the same name can arrive from two exports)."""
+    return list(dict.fromkeys(
+        p["name"] for p in positions if not p["tags"] and p["name"] not in settled
+    ))
+
+
+def append_instruments(path: Path, missing: list, warnings: list):
     new_file = not path.is_file()
     path.parent.mkdir(parents=True, exist_ok=True)
     with path.open("a", encoding="utf-8", newline="") as fh:
@@ -242,14 +277,14 @@ def apply_instruments(positions: list, path: Path, warnings: list):
     rel = path.name if new_file else path.name
     if new_file:
         warnings.append(
-            f"created {rel} with {len(missing)} holdings — fill in the ticker and "
-            f"tags columns, then re-run. Separate multiple tags with ';' "
-            f"(e.g. nordic;financials)."
+            f"created {rel} with {len(missing)} holdings — ticker and tags are "
+            f"blank. Multiple tags are separated with ';' (e.g. nordic;financials); "
+            f"'-' means deliberately no tags."
         )
     else:
         warnings.append(
-            f"{len(missing)} new holding(s) appended to {rel} "
-            f"({', '.join(missing)}) — fill in ticker/tags and re-run"
+            f"{len(missing)} new holding(s) appended to {rel} with blank ticker/tags "
+            f"({', '.join(missing)})"
         )
 
 
@@ -290,7 +325,7 @@ def fmt_eur(v):
     return fmt_num(v, 0)
 
 
-def render(positions, as_of, sources, output_path) -> str:
+def render(positions, as_of, sources, output_path, settled=frozenset()) -> str:
     total = sum(p["value_eur"] for p in positions)
     positions = sorted(positions, key=lambda p: -p["value_eur"])
 
@@ -369,6 +404,15 @@ def render(positions, as_of, sources, output_path) -> str:
                "and untagged holdings appear in none. Tags are assigned in "
                "`portfolio/instruments.csv`.")
     out.append("")
+    untagged = untagged_names(positions, settled)
+    if untagged:
+        gap = sum(p["value_eur"] for p in positions if p["name"] in untagged)
+        out.append(f"> **{len(untagged)} holding(s) untagged — €{fmt_eur(gap)}, "
+                   f"{pct(gap, total):.1f}% of invested value: {', '.join(untagged)}.** "
+                   f"They appear in no bloc, so every bloc share on this page is "
+                   f"understated until they are tagged in `portfolio/instruments.csv` "
+                   f"(`-` marks a holding as deliberately untagged).")
+        out.append("")
     out.append("| Bloc | Value (€) | Share | Holdings |")
     out.append("|------|-----------|-------|----------|")
     for tag, members in sorted(by_tag.items(), key=lambda kv: -sum(p["value_eur"] for p in kv[1])):
@@ -434,10 +478,11 @@ def main():
         sys.exit("error: no positions parsed — check the export isn't a transaction log")
 
     instruments = args.instruments or args.raw_dir.parent / INSTRUMENTS_FILE
-    apply_instruments(positions, instruments, warnings)
+    settled = apply_instruments(positions, instruments, warnings)
 
     args.output.write_text(
-        render(positions, as_of, [p.name for p in files], args.output), encoding="utf-8"
+        render(positions, as_of, [p.name for p in files], args.output, settled),
+        encoding="utf-8",
     )
 
     try:

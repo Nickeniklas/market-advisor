@@ -58,7 +58,11 @@ Portfolio numbers are **generated, never hand-written**. Two files, two jobs:
 - **`portfolio.md`** — what no broker export knows: why each position is held,
   cash outside the brokerage, constraints, and "What I'm Thinking About".
 
-Read both at the start of every session.
+**First action of every session, both modes: run `python3 tools/build_portfolio.py`**
+— unconditionally, before reading `portfolio.positions.md`, even if the user says
+they just ran it. The build is idempotent: re-running it against the same export
+costs a second and changes nothing. Read its stdout; the untagged-holdings
+warning (below) appears there. Then read both files.
 
 **Always check the `As of` date at the top of `portfolio.positions.md`** against
 today. Take today's date from the environment — never infer it from the newest
@@ -73,16 +77,32 @@ a fresh file from their broker into `portfolio/raw/` and re-run the build.
 If `portfolio.positions.md` is missing entirely, say so and explain the one-time
 setup rather than falling back to numbers scraped from an old session log.
 
-**Fill blank cells in `portfolio/instruments.csv`.** The build auto-appends a row
-for any holding it doesn't recognise, but leaves `ticker` and `tags` empty — and
-an untagged holding appears in **no** thematic bloc, so it vanishes from every
-exposure map without warning. At the start of every session, check the file for
-blank `ticker` or `tags` cells. If any exist, propose a value for each (reuse
-existing tag slugs where they fit; coin a new one only for a genuinely new
-category), show the user the one-line proposal, and write the confirmed values
-back before using any bloc figures. A blank `tags` cell is legitimate only if the
-user says so explicitly. Classification is the model's job here, not the user's —
+**Tag untagged holdings in `portfolio/instruments.csv`.** The build auto-appends a
+row for any holding it doesn't recognise, with `ticker` and `tags` empty — and an
+untagged holding appears in **no** thematic bloc, so every bloc share understates
+its true size. You don't need to go looking for blanks: every build prints
+`N holding(s) still untagged … (names)` for as long as any `tags` cell is blank,
+and `portfolio.positions.md` carries a banner in its Thematic Blocs section naming
+them with their combined value and share. Act on those. For each named holding,
+propose a tag (reuse existing slugs where they fit; coin a new one only for a
+genuinely new category) and a ticker if that is blank too, show the user the
+one-line proposal, write the confirmed values back, and re-run the build before
+quoting any bloc figure. Classification is the model's job here, not the user's —
 this is the one generated-adjacent file a session is expected to edit.
+
+A holding that genuinely belongs in no bloc (a global index ETF, say) gets a
+literal `-` in its `tags` cell — "deliberately no tags". That settles the row:
+it drops out of the warning and the banner. Propose `-` when that is the honest
+classification rather than forcing a tag; the user can also write it themselves.
+Blank means "not yet decided" and is never a final state.
+
+This is separate from the stale-snapshot case above: a stale export needs the
+user to download a fresh file from their broker, which a session cannot do. An
+untagged holding needs only classification, which the session does.
+
+In **pulse mode** nobody is there to confirm a proposal, so a pulse does not write
+`instruments.csv`. It names the untagged holdings in its log and treats every bloc
+figure as understated.
 
 ---
 
@@ -229,6 +249,8 @@ in pulse mode. That is deep-mode work.
 Boundaries:
 - Only create a new file in sessions/. Never edit CLAUDE.md or portfolio.md, and
   never hand-edit portfolio.positions.md — it is generated and will be overwritten.
+  Running the build (see "Portfolio data") is expected; it regenerates that file
+  and may append rows to `portfolio/instruments.csv`, which is not a hand edit.
 - If portfolio.md, portfolio.positions.md, or sessions/ can't be read, write a log
   noting the failure rather than guessing.
 

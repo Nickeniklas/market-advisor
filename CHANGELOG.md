@@ -6,6 +6,57 @@ your portfolio or market-session history, which live in git-ignored files under
 
 ---
 
+## 2026-09-18 — The untagged-holdings warning persists until resolved
+
+Follow-up to the "Blank instrument tags" half of the 2026-08-22 entry, which made
+tagging a session responsibility in the docs but explicitly left
+`build_portfolio.py` alone. That turned out to be the gap.
+
+`apply_instruments()` appends a blank row for each holding `instruments.csv`
+doesn't know and warns once — but the same run turns those holdings from
+*absent* into *present-but-blank*, so the second build is silent. Whoever runs
+the build first consumes the warning, and in practice that is often the user
+before opening Claude Code, or a scheduled pulse overnight. The session then
+starts against an already-quiet build. Worse, `portfolio.positions.md` carried no
+trace of the gap: the bloc table rendered normally, and the "untagged holdings
+appear in none" note above it is boilerplate printed whether zero or nine
+holdings are untagged. On a synthetic 9-position export, 3 untagged holdings were
+36.5% of invested value and `ai-supply` read 25.9% instead of its true share —
+the figure you would check right after a de-risking trade.
+
+- `tools/build_portfolio.py`: every build now warns about holdings whose row
+  exists but whose `tags` cell is blank, not only the build that appended them
+  (the append logic itself is unchanged). New convention: a literal `-` in `tags`
+  means "deliberately no tags" and settles the row. It is a sentinel, not a tag —
+  stripped at parse time and tracked as a separate set of settled names, so it
+  never renders as a bloc named `-`. `render()` emits a banner in Thematic Blocs
+  naming the count, euro value, share of invested value, and the untagged
+  holdings, stating that every bloc share is understated until they are tagged;
+  nothing is emitted when nothing is untagged, so a fully tagged build is
+  byte-identical to before. Warnings now state the fact ("they appear in no
+  thematic bloc") instead of telling the user to fill the CSV and re-run, which
+  contradicted `CLAUDE.md`. Module docstring updated to match.
+- `CLAUDE.md`: "Portfolio data (both modes)" makes running the build the
+  unconditional first action of every session, before reading
+  `portfolio.positions.md`. The blank-cells paragraph now acts on the build's
+  warning and the banner instead of scanning the CSV, documents `-`, and tells
+  the session to propose `-` when a holding genuinely fits no bloc. It separates
+  this from the stale-snapshot case, which still needs the user to export a
+  fresh file. Pulse mode names untagged holdings in its log instead of writing
+  `instruments.csv`, since nobody is there to confirm, and its Boundaries now
+  say running the build is expected rather than a hand edit.
+- `README.md`: Quick Start step 3 and the Maintenance tags bullet describe the
+  persistent warning and banner, and document `-` alongside the `;` separator.
+  The Maintenance refresh bullet notes that the session runs the build itself.
+- `run.md`: "Refresh your positions first" now asks only for the fresh export;
+  the session runs the build, and running it yourself as well is harmless.
+
+Net effect: an untagged holding is visible in the artifact every session reads,
+on every build, until someone classifies it — regardless of who ran the build or
+when.
+
+---
+
 ## 2026-08-22 — Sessions now anchor to the real date and fill blank instrument tags
 
 Two silent-failure modes surfaced in the same session, both of which had already

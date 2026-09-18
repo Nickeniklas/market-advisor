@@ -41,10 +41,12 @@ schedule; running a pulse, on any cadence, is always something you set up.
 
 ## Tips for Getting the Most Out of Each Session
 
-- **Refresh your positions first** — export from your broker into `portfolio/raw/`
-  and run `python3 tools/build_portfolio.py`. Takes a minute and keeps every weight
-  and concentration figure honest; a stale snapshot quietly understates whatever
-  has moved since. Applies to both deep and pulse sessions.
+- **Refresh your positions first** — export from your broker into `portfolio/raw/`.
+  The session runs `python3 tools/build_portfolio.py` itself as its first step, so
+  the fresh file is all it needs; running the build yourself beforehand is harmless
+  (it's idempotent) if you want to eyeball the numbers. Keeps every weight and
+  concentration figure honest; a stale snapshot quietly understates whatever has
+  moved since. Applies to both deep and pulse sessions.
 
 - **Then update `portfolio.md`** — especially the "What I'm Thinking About" section.
   This is what makes the analysis personal rather than generic. Positions don't go
