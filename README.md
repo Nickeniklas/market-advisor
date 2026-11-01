@@ -103,7 +103,9 @@ data, and the script is committed.
    yet decided" and keeps the warning on. New holdings are appended automatically.
 4. Open the project in Claude Code: `claude` in this directory
 5. Paste the Deep Session Prompt from `run.md` (or just say "run a market advisor
-   session") — this runs a full deep session by default
+   session") — this runs a deep session at the default length (about 1,500–2,000
+   words). Write "full depth" in the prompt's context field for the long version
+   (about 3,500 words)
 6. Read the output, push back with follow-up questions, think about the open questions
 7. Session is auto-logged to `sessions/`
 
@@ -143,13 +145,14 @@ This project runs in one of two modes, declared by the prompt used to start it
   session's scenarios and falsifiers, 3 new scenarios with an exposure map
   against your actual holdings, key principles, and open questions. Manually
   triggered — see "What Each Session Produces" below and "Suggested Session
-  Cadence" in `run.md`.
+  Cadence" in `run.md`. Two sizes: about 1,500–2,000 words by default, or about
+  3,500 words when the prompt asks for "full depth".
 - **Pulse** — a short, automated check-in. It fetches current macro data,
   compares it against the latest deep session's scenarios and declared
   falsifiers, and reports only what materially changed. Most weeks nothing
   will have, and saying so plainly is the correct, valuable output — not a
   failure of the tool. Pulse produces no scenario tables or teaching content;
-  that's deep-mode work. See `demo/sessions/*-pulse.md` for real examples of
+  that's deep-mode work. About 400 words at most, with no long version. See `demo/sessions/*-pulse.md` for real examples of
   the output shape.
 
 ---
@@ -159,21 +162,32 @@ This project runs in one of two modes, declared by the prompt used to start it
 This section describes a **deep** session; see "Session Modes" above for how
 pulse differs.
 
-1. **Macro Snapshot** — current inflation, rates, equity levels, key risks,
-   each data point dated to its as-of print or reference period
-2. **Scenario Review** — the previous deep session's scenarios scored against
-   what actually happened since (supported / contradicted / neutral, with
-   evidence), its declared falsifiers checked fired / not fired, and its open
-   questions answered. Skipped (with a note) only on the first-ever deep session.
-3. **3 Scenarios** — plausible macro futures, each with a probability expressed
+1. **TL;DR** — three lines at the top: what changed, how the scenarios moved,
+   and what matters most for your portfolio
+2. **Macro Snapshot** — up to 12 one-line bullets on inflation, rates, equity
+   levels and key risks, each dated to its as-of print or reference period
+3. **Scenario Review** — the previous deep session's declared falsifiers
+   checked fired / not fired in one table, and its open questions answered.
+   Each prior scenario's score (supported / contradicted / neutral) becomes the
+   stated reason for its probability change in the next section, so the
+   evidence appears once. Skipped (with a note) only on the first-ever deep
+   session.
+4. **3 Scenarios** — plausible macro futures, each with a probability expressed
    as a delta from the last session where the same `family` recurs (with the
-   reason for the change), 1–2 concrete falsifiers to watch, and an exposure
-   map naming the actual `portfolio.positions.md` holdings it affects, with
-   their real weights
-4. **Key Principles** — timeless concepts made relevant to right now
-5. **Open Questions** — hard questions to sit with before next session
-6. **Session Log** — saved automatically to `sessions/YYYY-MM-DD.md`, starting
+   reason for the change) and 1–2 concrete falsifiers to watch, followed by one
+   exposure map naming the actual `portfolio.positions.md` holdings each
+   scenario affects, with their real weights
+5. **Your question** — a section answering the question you put in the
+   prompt's context field, if you asked one
+6. **Key Principles** — three timeless concepts made relevant to right now
+   (two when you asked your own question)
+7. **Open Questions** — three hard questions to sit with before next session,
+   each a single short question
+8. **Session Log** — saved automatically to `sessions/YYYY-MM-DD.md`, starting
    with a machine-readable YAML frontmatter block (see below)
+
+The whole thing targets about 1,500–2,000 words, or about 3,500 at "full depth"
+(see "Length budget" in `CLAUDE.md`).
 
 ---
 

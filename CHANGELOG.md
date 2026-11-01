@@ -6,6 +6,41 @@ your portfolio or market-session history, which live in git-ignored files under
 
 ---
 
+## 2026-11-01 — Deep sessions get a length budget
+
+Deep logs grew from ~600–1,100 words (Apr–Jun) to 2,500–6,000 (Sep–Nov). The
+first jump came with the 2026-07-21 review/falsifier/exposure-map additions,
+which added sections without removing any, so the same evidence was written
+2–3 times. Nothing capped deep-mode length, and each session read the previous
+log and picked up its size along with its content. Open questions had always run
+60–75 words each with several sub-questions, because Step 5 said "hard" without
+saying "short". Pulses grew the same way, from ~400 words to as much as ~1,700.
+
+- `CLAUDE.md`:
+  - New "Length budget" for deep mode: about 1,500–2,000 words by default,
+    about 3,500 at "full depth" (opt-in via the session prompt), with a guide
+    per section. The budget covers the chat output as well as the log.
+  - "Say each thing once": a prior scenario's score is now the reason for its
+    probability change in Step 3, not a separate scoring section too.
+  - Falsifiers carried forward unchanged are not restated under the scenario.
+  - The exposure map is one combined table rather than one per scenario.
+  - Key Principles is cut to 3 (2 when the user asks their own question) and
+    absorbs Key Takeaways.
+  - Portfolio State is 2–3 lines.
+  - Open questions: one question each, ≤ 35 words, no sub-questions, no
+    commentary.
+  - The log template gains a 3-line TL;DR at the top.
+  - Previous logs are read for content, never as a template for format or
+    length (deep and pulse).
+  - Pulse is capped at about 400 words, with no long version.
+- `run.md`: the deep prompt says "deep" instead of "full", so it can't be
+  mistaken for the full-depth option, and notes how to ask for full depth.
+- `README.md`, `EXAMPLE-SESSION.md`: match the new structure and lengths.
+  `demo/sessions/` is untouched: those synthetic logs are already short, and
+  old logs stay valid.
+
+---
+
 ## 2026-09-18 — The untagged-holdings warning persists until resolved
 
 Follow-up to the "Blank instrument tags" half of the 2026-08-22 entry, which made

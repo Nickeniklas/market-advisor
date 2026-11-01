@@ -56,8 +56,20 @@ tags:
 > exists yet to review, so it has no "Scenario Review" section. `CLAUDE.md`
 > Step 2.5 adds that section starting with your second deep session; its
 > absence here is expected, not an omission.
+>
+> **Length.** A real deep session targets about 1,500–2,000 words by default,
+> or about 3,500 when you write "full depth" in the prompt's context field (see
+> `run.md`). This sample is shorter because a first session with no broker
+> export has no review, no exposure map and no portfolio to discuss.
 
 ---
+
+# Session: 2026-03-28
+
+**TL;DR**
+Inflation is drifting back up while the Fed holds and the ECB cuts.
+Stagflation is the most likely scenario at 40%, ahead of soft landing at 35%.
+For a long horizon, the big question is when to deploy cash, not whether to panic.
 
 ## Macro Snapshot
 
@@ -96,22 +108,17 @@ weights, and their direction of exposure.)*
 
 ---
 
-## Key Takeaways
+## Key Principles
 
-- A 7+ year horizon changes the calculus dramatically: the "right" move in a
-  potential stagflation environment for a short-term investor (rotate to TIPS, cash)
-  may be suboptimal for a long-term investor with high human capital still ahead of them
-- UCITS TIPS ETFs (e.g. iShares $ TIPS UCITS ETF) are accessible via most European
-  brokerage platforms and worth understanding as an inflation hedge — but they
-  carry duration risk if real rates rise further
-- Tax-deferred accounts (per persona.md) are most valuable in volatile,
-  mean-reverting markets: selling and rebuying within them triggers no tax event,
-  which is structurally advantageous vs. a standard taxable account in scenarios
-  requiring rebalancing
-- The CAPE ratio for US equities (~32x) historically predicts below-average 10Y returns
-  — not a timing tool, but relevant for expected-return assumptions in financial planning
-- Diversification across geographies (Europe, EM) offers valuation discount today
-  even if it doesn't reduce short-term correlation in a risk-off selloff
+- **Horizon changes the right answer.** In a possible stagflation, a short-term
+  investor might rotate into TIPS and cash. With 7+ years and a long working life
+  ahead, the same move can cost more than the volatility it avoids.
+- **Tax-deferred accounts make rebalancing cheap.** Selling and rebuying inside one
+  (per persona.md) triggers no tax. That matters most in volatile markets, when
+  rebalancing is needed.
+- **Valuation sets expectations, not timing.** US equities at ~32x CAPE have
+  historically meant below-average 10-year returns. That's useful for planning
+  what to expect, not for picking an entry date.
 
 ---
 
@@ -125,9 +132,8 @@ weights, currency split, relevant thematic blocs, and cash.)*
 
 ## Open Questions Left for Next Session
 
-1. If the ECB cuts aggressively while the Fed holds, what happens to EUR/USD and
-   how does that affect the real return of your USD-denominated ETF holdings?
-2. What is the difference between "expensive markets" and "overvalued markets" —
-   and does the distinction change anything about how you should act?
-3. Your cash is earning ~3.5% — at what point does that become an opportunity cost
-   rather than a safe harbor, and what would need to be true for you to deploy it?
+1. If the ECB keeps cutting while the Fed holds, how much of your USD holdings'
+   return could a weaker dollar take away?
+2. Is "expensive" the same as "overvalued", or can a market stay expensive for a
+   decade?
+3. Your cash earns ~3.5%. What would have to be true for you to deploy it?

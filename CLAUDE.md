@@ -215,6 +215,8 @@ Steps:
    AND the most recent deep-mode log. The scenario baseline — probabilities,
    families, and falsifiers you compare against — always comes from the
    latest deep log directly, never from a pulse's prose recollection of it.
+   Read these logs for their content, not as a template — a pulse matches
+   the format below, not the length of whatever the last log turned into.
 3. Fetch current macro data via web search: policy rates (Fed, ECB), latest
    inflation prints, major equity index levels, EUR/USD, and any notable
    risk events in the last week.
@@ -234,7 +236,9 @@ What counts as "material":
   deep_session_recommended: true.
 Day-to-day index wiggles, single-stock noise, and recycled headlines are NOT material.
 
-Pulse log format (keep it tight):
+Pulse log format (keep it tight — about 400 words at most, not counting
+frontmatter and sources; there is no long version of a pulse. If a pulse needs
+more room than that, that is the signal to set `deep_session_recommended: true`):
 - **YAML frontmatter** — per the "Session Log Frontmatter" section above, with
   `mode: pulse`, the `material_change` and `deep_session_recommended` booleans,
   and no `scenarios` key
@@ -262,6 +266,46 @@ The full analysis session. Trigger this manually when a Fed/ECB decision
 lands, before deploying significant cash, or whenever a pulse flags something
 worth digging into.
 
+#### Length budget
+
+A deep session is read in one sitting, so length is a cost, not a sign of
+effort. Two sizes, not counting frontmatter, data notes and sources:
+
+- **Default: about 1,500–2,000 words.**
+- **Full depth: about 3,500 words** — only when the session prompt asks for it
+  ("full depth", "long session" or similar). If the prompt asks for shorter,
+  go shorter than the default.
+
+These are targets: a big week can run a little over. The structural rules
+below apply at both sizes — full depth buys room for analysis and for the
+user's own questions, not for repetition. The budget covers what you show in
+chat as well as the log; never give a longer version in chat than you log.
+
+Per-section guide for the default size (scale up roughly in proportion for
+full depth):
+
+| Section | Default |
+|---|---|
+| TL;DR | 3 lines |
+| Macro Snapshot | ≤ 12 bullets, one line each |
+| Scenario Review | ~300 words |
+| Scenarios + exposure map | ~600 words |
+| The user's own question(s), if asked | ~500 words |
+| Key Principles | 3 bullets, 2–3 sentences each |
+| Portfolio State | 2–3 lines |
+| Open Questions | 3 questions, ≤ 35 words each |
+
+**Say each thing once.** A data point or piece of evidence appears in one
+section only; other sections refer to it, they don't restate it. When the user
+asks their own question, its section replaces generic content rather than
+adding to it — cut Key Principles to 2 to make room.
+
+**Previous logs are read for content, never for format.** Read past sessions
+for their scenarios, falsifiers, open questions and the user's answers. Do not
+use them as a template for structure or length. An extra section a past log
+added (a trim list, a "what the week did to your book" table) carries forward
+only if it still bears on a decision this session; otherwise drop it.
+
 When running in this mode, follow these steps **in order**:
 
 ### Step 1 — Fetch Current Macro Context
@@ -282,7 +326,9 @@ period — e.g. "US CPI 3.3% YoY (June print, released Jul 15)", "S&P 500
 normal release cadence would suggest, flag it. A number without a date is
 not a snapshot entry.
 
-Summarize this as **"Today's Macro Snapshot"** — concise, factual, no opinions yet.
+Summarize this as **"Today's Macro Snapshot"** — concise, factual, no opinions
+yet, at most 12 one-line bullets. Pick what bears on the scenarios and holdings;
+not every fetched number earns a bullet.
 
 ### Step 2 — Read Personal Context
 Read `persona.md`, `portfolio.positions.md`, and `portfolio.md` carefully — see
@@ -298,14 +344,19 @@ Read the most recent **deep-mode** log in `sessions/` (skip pulse logs for
 this step — they carry no scenarios). Before any new analysis:
 
 1. **Score each prior scenario.** For every scenario in that log's
-   frontmatter, state whether evidence since then has supported it,
-   contradicted it, or been neutral — citing the specific data points from
-   Step 1 that say so. "Nothing decisive either way" is a valid, honest score.
+   frontmatter, decide whether evidence since then has supported it,
+   contradicted it, or been neutral, citing the specific data points from
+   Step 1. "Nothing decisive either way" is a valid, honest score. Where the
+   scenario's family recurs this session, the score *is* the reason for its
+   probability change in Step 3 — write it there, once, not here as well.
+   Only a prior scenario that does not recur gets a one-line score in this
+   section.
 2. **Check declared falsifiers.** If the prior session listed falsifiers per
-   scenario, go through each one explicitly: fired, not fired, or not yet
-   observable. Never skip one silently.
+   scenario, go through each one explicitly in one table: fired, not fired, or
+   not yet observable. Never skip one silently.
 3. **Answer the prior open questions.** Respond to that session's "Open
-   Questions" in 2–4 sentences each. "Still unresolved, and here's why" is a
+   Questions" in 2–4 sentences each, including your response to any answer the
+   user wrote in `portfolio.md`. "Still unresolved, and here's why" is a
    legitimate answer; dropping a question without comment is not.
 
 This section's output is logged (see Step 6). If no deep session exists yet,
@@ -318,22 +369,27 @@ Present **3 plausible macro scenarios** given the current environment. For each:
   family recurs: "Stagflation: 50% → 40%, because CPI cooled for a second
   consecutive print" — the reason for the change is mandatory, not just the
   new number. Scenarios with no prior-session counterpart get a standalone
-  estimate, stated as such.
-- Explain what historically happens to: equities, bonds, commodities, cash, real assets
+  estimate, stated as such. This reason doubles as the Step 2.5 score — keep
+  it to 2–3 sentences.
+- Explain in 1–2 sentences what historically happens to: equities, bonds,
+  commodities, cash, real assets
 - **Falsifiers:** for each scenario, name 1–2 concrete, checkable observables
   that would move its probability up or down before the next session (e.g.
   "a third consecutive hot US CPI print", "IG credit spreads widen past
   their 12-month high"). Vague falsifiers ("markets get worse") don't count —
   the next pulse must be able to answer fired / not fired without judgment
-  calls. These go in the prose, and optionally in frontmatter (see the
-  "Session Log Frontmatter" section).
-- **Exposure map:** a short table mapping the actual holdings from
-  `portfolio.positions.md` (and cash from `portfolio.md`) to this scenario —
-  which positions are most exposed, in which direction, and why (one line
-  each). Generic statements ("the portfolio is diversified") are not
-  acceptable; name the positions and cite their actual weights. Where a whole
-  thematic bloc moves together, say so with its share (e.g. "the `ai-supply`
-  bloc, 53.9% of invested value") rather than listing each holding separately.
+  calls. List them as bare one-liners in the prose, and optionally in
+  frontmatter (see the "Session Log Frontmatter" section). A falsifier
+  carried forward unchanged gets "carried forward" and no restated status or
+  reasoning — the Step 2.5 table already holds that.
+- **Exposure map:** one table covering all three scenarios (a column per
+  scenario), not one table per scenario. Map the actual holdings from
+  `portfolio.positions.md` (and cash from `portfolio.md`) — which positions
+  are most exposed, in which direction, and why (one line each). Generic
+  statements ("the portfolio is diversified") are not acceptable; name the
+  positions and cite their actual weights. Where a whole thematic bloc moves
+  together, give it one row with its share (e.g. "the `ai-supply` bloc, 53.9%
+  of invested value") rather than listing each holding separately.
 
 Format each scenario clearly with headers. Be honest when scenarios overlap or
 when history gives mixed signals.
@@ -343,8 +399,11 @@ Before logging (Step 6), assign each scenario a `family` slug per the
 for slugs to reuse before coining a new one.
 
 ### Step 4 — Key Principles for This Environment
-Draw out **3–5 timeless investing principles** that are especially relevant right
-now. Ground each one in history or theory. Examples of the kind of depth expected:
+Draw out **3 timeless investing principles** (2 when the user asked their own
+question this session) that are especially relevant right now, 2–3 sentences
+each. Ground each one in history or theory. This is the session's only
+takeaways list — there is no separate summary of the same points. Examples of
+the kind of insight expected:
 - Why long-horizon investors can tolerate volatility that short-term ones cannot
 - How sequence-of-returns risk differs from average-return risk
 - What diversification actually does (and doesn't do) in a correlated selloff
@@ -355,6 +414,13 @@ now. Ground each one in history or theory. Examples of the kind of depth expecte
 End every session with **3 open questions** the user should think about before the
 next session. These should be genuinely hard questions, not softballs. The goal is
 to build the habit of thinking probabilistically and avoiding narrative bias.
+
+Hard means the thinking is hard, not the reading. Each question:
+- asks **one** thing — no follow-up or "and if not, …" sub-questions
+- has at most one short sentence of setup before it
+- is about 35 words or fewer in total
+- carries no commentary or praise ("Good.", "That's the right instinct") —
+  responses to the user's previous answers belong in the Scenario Review
 
 ### Step 6 — Log the Session
 Append a session log to `sessions/YYYY-MM-DD.md` (use today's date). Start the
@@ -368,30 +434,44 @@ file with the YAML frontmatter per the "Session Log Frontmatter" section above
 
 # Session: YYYY-MM-DD
 
+**TL;DR**
+[3 lines: what changed in the macro picture, how the scenario probabilities
+moved, and the one thing that matters most for this portfolio right now]
+
 ## Macro Snapshot
-[brief summary of what you found]
+[≤ 12 one-line bullets, each dated]
 
 ## Scenario Review (vs YYYY-MM-DD)
-[Per Step 2.5: score of each prior scenario with evidence, falsifier check
-results, and answers to the prior session's open questions. If this is the
-first deep session, state that instead.]
+[Per Step 2.5: one falsifier check table, a one-line score only for prior
+scenarios that don't recur, and answers to the prior session's open questions.
+If this is the first deep session, state that instead.]
 
 ## Scenarios Covered
-[list the 3 scenarios and your probability estimates, shown as
-`previous → current` where a family recurs with the previous session]
+[the 3 scenarios with probabilities shown as `previous → current` where a
+family recurs, each with its reason, history and falsifiers; then one combined
+exposure map]
 
-## Key Takeaways
-[3–5 bullet points of the most important educational points from this session]
+## [The user's question, as a heading — only if they asked one]
+[~500 words at the default size]
+
+## Key Principles
+[the 3 principles from Step 4 — 2 if the user asked a question]
 
 ## Portfolio State (positions as of YYYY-MM-DD, cash from portfolio.md)
-[brief summary: total invested value, top holdings and weights, currency split,
-any thematic bloc that matters this session, and cash. Use the positions file's
-`As of` date in the heading — not today's date, if they differ — and note it
-explicitly when the snapshot was stale at session time.]
+[2–3 lines: total invested value, top holdings and weights, currency split, the
+bloc that matters this session, and cash. Use the positions file's `As of` date
+in the heading — not today's date, if they differ — and note it explicitly when
+the snapshot was stale at session time.]
 
 ## Open Questions Left for Next Session
 [the 3 questions from Step 5]
 ```
+
+Data notes go after the open questions only when there is a real caveat (a
+conflicting source, an unconfirmed figure). Sources follow as a plain list.
+
+Older logs use a "Key Takeaways" heading alongside or instead of "Key
+Principles". They stay valid as they are; only new logs use this template.
 
 ### Step 7 — Reconcile `portfolio.md`
 
@@ -433,6 +513,9 @@ off-limits, and pulse sessions still edit nothing but their own log.
   user switches language mid-session
 - Use headers and structured output — this is a reference document the user
   re-reads, not a chat conversation
+- Short beats complete. When something has to go, cut a whole point rather
+  than squeezing every point in. Short sentences are good, but they don't make
+  a short document on their own: cut points, not just words
 - Avoid hedging language that adds no value ("it's worth noting that...",
   "it's important to remember...") — just say the thing
 - Be direct about uncertainty: "We don't know X. Here's why that matters."

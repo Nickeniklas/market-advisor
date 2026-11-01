@@ -9,7 +9,7 @@
 ## Deep Session Prompt
 
 ```
-Run a full market advisor session following the CLAUDE.md instructions.
+Run a deep market advisor session following the CLAUDE.md instructions.
 
 Start with Step 1 (fetch current macro data via web search), then read persona.md,
 portfolio.positions.md, and portfolio.md, then proceed through all steps in order.
@@ -17,8 +17,17 @@ Log the session when done.
 
 Any additional context for this session:
 [Optional: e.g. "I'm specifically thinking about whether to deploy my cash now or wait"
- or "I read about inverted yield curves this week, can you work that into the analysis?"]
+ or "I read about inverted yield curves this week, can you work that into the analysis?"
+ Add "full depth" here for the long version.]
 ```
+
+**Length.** A deep session targets about 1,500–2,000 words by default. Write
+"full depth" in the context field for the long version, about 3,500 words — worth
+it after a big macro event or before a large decision. Both sizes follow the same
+rules (TL;DR at the top, nothing said twice, short single-question open
+questions); full depth just leaves more room for analysis and your own questions.
+You can also ask for shorter than the default. Pulse sessions have one size only,
+about 400 words.
 
 ---
 
