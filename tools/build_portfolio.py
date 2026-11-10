@@ -274,7 +274,7 @@ def append_instruments(path: Path, missing: list, warnings: list):
         for name in missing:
             writer.writerow([name, "", ""])
 
-    rel = path.name if new_file else path.name
+    rel = path.name
     if new_file:
         warnings.append(
             f"created {rel} with {len(missing)} holdings — ticker and tags are "
@@ -350,7 +350,7 @@ def render(positions, as_of, sources, output_path, settled=frozenset()) -> str:
     out = []
     out.append("# Portfolio Positions")
     out.append("")
-    out.append(f"> **Generated file — do not edit by hand.** Rebuild with `python tools/build_portfolio.py`.")
+    out.append(f"> **Generated file — do not edit by hand.** Rebuild with `python3 tools/build_portfolio.py`.")
     out.append(f"> Edits here are overwritten; notes and cash live in `portfolio.md`.")
     out.append("")
     out.append(f"- **As of:** {as_of.isoformat()}")

@@ -6,6 +6,29 @@ your portfolio or market-session history, which live in git-ignored files under
 
 ---
 
+## 2026-11-10 — CLAUDE.md checked against the code; Status section added
+
+`CLAUDE.md` held no dated status entries, so nothing moved out of it. Its
+current-state claims were checked against `tools/` and `.gitignore`.
+
+- `CLAUDE.md`:
+  - New "Status" section: what is built, the two build scripts and their flags,
+    no deployment, CI, tests or schedule, what is committed vs git-ignored, what
+    is not built yet. Ends with a pointer to this file as the change history.
+  - Corrected the stale-snapshot note. It said the build "prints" a warning past
+    14 days; the build only writes a staleness banner into
+    `portfolio.positions.md` and its stdout is silent about age (checked with an
+    18-day-old export).
+  - The build command is spelled `python3` everywhere (one line said `python`).
+  - "Portfolio data" now states how the `As of` date is read from the export
+    filename (mtime fallback with a warning) and that the newest-dated export
+    wins, with same-date files combined.
+  - Idempotent build: re-running changes no numbers, only the `Built` date.
+  - Dropped an empty "Session Workflow" heading and nested the deep-mode Step
+    headings under "MODE: deep". No wording or rules changed.
+
+---
+
 ## 2026-11-01 — Deep sessions get a length budget
 
 Deep logs grew from ~600–1,100 words (Apr–Jun) to 2,500–6,000 (Sep–Nov). The

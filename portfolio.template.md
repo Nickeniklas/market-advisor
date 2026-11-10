@@ -4,7 +4,7 @@
 > `portfolio.md` is git-ignored so your data stays local.
 >
 > **Positions don't go in this file.** They're built from your broker export by
-> `python tools/build_portfolio.py`, which writes `portfolio.positions.md`. Drop an
+> `python3 tools/build_portfolio.py`, which writes `portfolio.positions.md`. Drop an
 > export in `portfolio/raw/` and run the build — see README.md for setup.
 >
 > This file is for what a broker export can't know: why you hold things, cash held

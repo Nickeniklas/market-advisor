@@ -280,9 +280,9 @@ removed, so old logs stay queryable next to new ones.
 - Drop a fresh broker export in `portfolio/raw/` before each session — this is
   what keeps weights and concentration honest. The session runs
   `python3 tools/build_portfolio.py` itself as its first step (it's idempotent,
-  so running it yourself too does no harm). A snapshot older than 14 days makes the build
-  print a warning and the generated file carry a staleness banner. Note the
-  warning fires *past* 14 days, so a snapshot at exactly 14 passes silently —
+  so running it yourself too does no harm). A snapshot older than 14 days makes the generated
+  file carry a staleness banner (the build itself prints nothing about age). Note
+  the banner appears only *past* 14 days, so a snapshot at exactly 14 gets none —
   the session states the age in days regardless.
 - Update `portfolio.md` before each session (especially "What I'm Thinking About")
 - **Thematic tags are handled for you.** The build auto-appends a row to
